@@ -31,14 +31,16 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release .. -A Win32
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_CLIENT=ON .. -A Win32
           cmake --build . --config Release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: sampvoice-win-release.zip
-          path: build/server/Release/sampvoice.dll
+          path: |
+            build/server/Release/sampvoice.dll
+            build/client/Release/sampvoice.asi
 
   build-linux-release:
     runs-on: ubuntu-latest
@@ -82,6 +84,7 @@ jobs:
         run: |
           mkdir -p dist
           cp release-files/win/sampvoice.dll dist/sampvoice.dll
+          cp release-files/win/sampvoice.asi dist/sampvoice.asi
           cp release-files/linux/sampvoice.so dist/sampvoice.so
           cd dist && zip -r ../sampvoice-server-binaries.zip . && cd ..
       - name: Create GitHub Release
@@ -89,5 +92,6 @@ jobs:
         with:
           files: |
             dist/sampvoice.dll
+            dist/sampvoice.asi
             dist/sampvoice.so
             sampvoice-server-binaries.zip

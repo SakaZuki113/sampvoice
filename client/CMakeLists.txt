@@ -10,7 +10,7 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries $ENV{DXSDK_DIR}/Lib/x86)
 
 add_library(${PROJECT_NAME} SHARED ${sampvoice_client_source_list})
 
-add_definitions(-DSAMP_EN)
+add_definitions(-DSAMP_EN -DSAMP_R3)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "sampvoice" SUFFIX ".asi")
