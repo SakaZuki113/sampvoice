@@ -8,6 +8,7 @@ on:
       - 'open.mp'
     tags:
       - 'v*'
+      - 'SV-*'
   pull_request:
     branches:
       - '*'
@@ -40,7 +41,7 @@ jobs:
           name: sampvoice-win-release.zip
           path: |
             build/server/Release/sampvoice.dll
-            build/client/Release/sampvoice.asi
+            build/client/Release/
 
   build-linux-release:
     runs-on: ubuntu-latest
@@ -65,7 +66,7 @@ jobs:
           path: docker/build/server/sampvoice.so
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/tags/SV-')
     needs: [build-windows-release, build-linux-release]
     runs-on: ubuntu-latest
     permissions:
@@ -84,14 +85,19 @@ jobs:
         run: |
           mkdir -p dist
           cp release-files/win/sampvoice.dll dist/sampvoice.dll
-          cp release-files/win/sampvoice.asi dist/sampvoice.asi
           cp release-files/linux/sampvoice.so dist/sampvoice.so
           cd dist && zip -r ../sampvoice-server-binaries.zip . && cd ..
+
+          mkdir -p client-dist
+          cp -r release-files/win/* client-dist/
+          rm -f client-dist/sampvoice.dll
+          cd client-dist && zip -r ../sampvoice-client.zip . && cd ..
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: ${{ github.ref_name }}
           files: |
             dist/sampvoice.dll
-            dist/sampvoice.asi
             dist/sampvoice.so
             sampvoice-server-binaries.zip
+            sampvoice-client.zip

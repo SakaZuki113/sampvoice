@@ -298,6 +298,8 @@ DartConfiguration.tcl
 .vscode/
 
 *.dll
+!client/package/*.dll
+!setup/files/*.dll
 *.so
 *.a
 *.pc
