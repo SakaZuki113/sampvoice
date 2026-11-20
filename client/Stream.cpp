@@ -5,12 +5,18 @@
 
 #include "SetController.h"
 #include "SlideController.h"
+#include "SpeakerList.h"
 
 Stream::Stream(const DWORD streamFlags, const StreamType type,
                const D3DCOLOR color, std::string name) noexcept
     : streamFlags(streamFlags)
     , streamInfo(type, color, std::move(name))
 {}
+
+Stream::~Stream() noexcept
+{
+    SpeakerList::OnStreamDelete(*this);
+}
 
 const StreamInfo& Stream::GetInfo() const noexcept
 {

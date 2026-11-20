@@ -69,6 +69,7 @@ public:
 
     static void OnSpeakerPlay(const Stream& stream, WORD speaker) noexcept;
     static void OnSpeakerStop(const Stream& stream, WORD speaker) noexcept;
+    static void OnStreamDelete(const Stream& stream) noexcept;
 
 private:
 

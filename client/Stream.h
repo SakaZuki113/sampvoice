@@ -43,7 +43,7 @@ protected:
 
 public:
 
-    virtual ~Stream() noexcept = default;
+    virtual ~Stream() noexcept;
 
 public:
 

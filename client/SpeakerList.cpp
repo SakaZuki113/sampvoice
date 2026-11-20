@@ -335,6 +335,14 @@ void SpeakerList::OnSpeakerStop(const Stream& stream, const WORD speaker) noexce
     SpeakerList::playerStreams[speaker].erase((Stream*)(&stream));
 }
 
+void SpeakerList::OnStreamDelete(const Stream& stream) noexcept
+{
+    for (auto& streams : SpeakerList::playerStreams)
+    {
+        streams.erase((Stream*)(&stream));
+    }
+}
+
 bool SpeakerList::initStatus { false };
 bool SpeakerList::showStatus { false };
 
