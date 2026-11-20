@@ -125,8 +125,8 @@ void GameUtil::DisableAntiCheat(const AddressesBase& addrBase)
 {
     struct patch_t
     {
-        const size_t offset;
-        const size_t length;
+        size_t offset;
+        size_t length;
         const char* bytes;
     };
 

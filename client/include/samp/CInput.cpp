@@ -134,7 +134,11 @@ void SAMP::CInput::AddCommand(const char* szName, CMDPROC handler) {
 	if (this == nullptr || szName == nullptr || handler == nullptr) return;
 	if (this->m_nCommandCount < MAX_CLIENT_CMDS) {
 		strncpy_s(this->m_szCommandName[this->m_nCommandCount], szName, MAX_CMD_LENGTH);
+#if defined(SAMP_R1)
 		this->m_pCommandProc[this->m_nCommandCount] = handler;
+#elif defined(SAMP_R3)
+		this->m_commandProc[this->m_nCommandCount] = handler;
+#endif
 		this->m_nCommandCount++;
 	}
 }
