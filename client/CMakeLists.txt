@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     bass_fx.lib 
     bass.lib 
     opus.lib
+    d3dx9.lib
 )
 
 GroupSourcesByFolder(${PROJECT_NAME})
