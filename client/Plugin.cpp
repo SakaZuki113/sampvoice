@@ -241,7 +241,7 @@ void Plugin::MainLoop()
 
             if (keyEvent.isPushToTalk && Record::GetMicroEnable())
             {
-                if (!Plugin::recordBusy && Plugin::recordStatus && !keyEvent.activePttKeys)
+                if (!keyEvent.activePttKeys)
                 {
                     MicroIcon::SwitchToPassiveIcon();
                     Plugin::recordStatus = false;
@@ -338,6 +338,7 @@ void Plugin::ControlPacketHandler(const ControlPacket& controlPacket)
 
             Plugin::recordBusy = true;
             Plugin::recordStatus = true;
+            MicroIcon::SwitchToActiveIcon();
 
             Record::StartRecording();
         } break;
@@ -351,6 +352,7 @@ void Plugin::ControlPacketHandler(const ControlPacket& controlPacket)
 
             Plugin::recordStatus = false;
             Plugin::recordBusy = false;
+            MicroIcon::SwitchToPassiveIcon();
         } break;
         case SV::ControlPacketType::addKey:
         {

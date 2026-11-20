@@ -91,7 +91,7 @@ void MicroIcon::SetPassiveIcon() noexcept
     MicroIcon::alphaLevelMutedIcon = 0;
     MicroIcon::alphaLevelDeviationMutedIcon = 0;
 
-    MicroIcon::alphaLevelPassiveIcon = 255;
+    MicroIcon::alphaLevelPassiveIcon = 0;
     MicroIcon::alphaLevelDeviationPassiveIcon = 0;
 }
 
@@ -113,32 +113,41 @@ void MicroIcon::SetMutedIcon() noexcept
     MicroIcon::alphaLevelActiveIcon = 0;
     MicroIcon::alphaLevelDeviationActiveIcon = 0;
 
-    MicroIcon::alphaLevelMutedIcon = 255;
+    MicroIcon::alphaLevelMutedIcon = 0;
     MicroIcon::alphaLevelDeviationMutedIcon = 0;
 }
 
 void MicroIcon::SwitchToPassiveIcon() noexcept
 {
-    MicroIcon::alphaLevelDeviationActiveIcon = kAlphaLevelDecrementDeviation;
-    MicroIcon::alphaLevelDeviationMutedIcon = kAlphaLevelDecrementDeviation;
+    MicroIcon::alphaLevelActiveIcon = 0;
+    MicroIcon::alphaLevelDeviationActiveIcon = 0;
+    MicroIcon::alphaLevelMutedIcon = 0;
+    MicroIcon::alphaLevelDeviationMutedIcon = 0;
 
-    MicroIcon::alphaLevelDeviationPassiveIcon = kAlphaLevelIncrementDeviation;
+    MicroIcon::alphaLevelPassiveIcon = 0;
+    MicroIcon::alphaLevelDeviationPassiveIcon = 0;
 }
 
 void MicroIcon::SwitchToActiveIcon() noexcept
 {
-    MicroIcon::alphaLevelDeviationPassiveIcon = kAlphaLevelDecrementDeviation;
-    MicroIcon::alphaLevelDeviationMutedIcon = kAlphaLevelDecrementDeviation;
+    MicroIcon::alphaLevelPassiveIcon = 0;
+    MicroIcon::alphaLevelDeviationPassiveIcon = 0;
+    MicroIcon::alphaLevelMutedIcon = 0;
+    MicroIcon::alphaLevelDeviationMutedIcon = 0;
 
-    MicroIcon::alphaLevelDeviationActiveIcon = kAlphaLevelIncrementDeviation;
+    MicroIcon::alphaLevelActiveIcon = 255;
+    MicroIcon::alphaLevelDeviationActiveIcon = 0;
 }
 
 void MicroIcon::SwitchToMutedIcon() noexcept
 {
-    MicroIcon::alphaLevelDeviationPassiveIcon = kAlphaLevelDecrementDeviation;
-    MicroIcon::alphaLevelDeviationActiveIcon = kAlphaLevelDecrementDeviation;
+    MicroIcon::alphaLevelPassiveIcon = 0;
+    MicroIcon::alphaLevelDeviationPassiveIcon = 0;
+    MicroIcon::alphaLevelActiveIcon = 0;
+    MicroIcon::alphaLevelDeviationActiveIcon = 0;
 
-    MicroIcon::alphaLevelDeviationMutedIcon = kAlphaLevelIncrementDeviation;
+    MicroIcon::alphaLevelMutedIcon = 0;
+    MicroIcon::alphaLevelDeviationMutedIcon = 0;
 }
 
 void MicroIcon::Render() noexcept
