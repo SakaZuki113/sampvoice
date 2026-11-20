@@ -8,6 +8,7 @@
 */
 
 #include "CGameSA.h"
+#include <util/AddressesBase.h>
 
 #if defined(SAMP_R1)
 
@@ -307,7 +308,12 @@ void SAMP::CGameSA::ProcessFrameLimiter() {
 
 char*& SAMP::CGameSA::szGameTextMessage() { return *(char**)SAMP_ADDROF(0x150084); }
 bool* SAMP::CGameSA::aUsedPlayerSlots() { return (bool*)SAMP_ADDROF(0x150090); }
-SAMP::CGameSA*& SAMP::pGame() { return *(SAMP::CGameSA**)SAMP_ADDROF(0x26E8F4); }
+SAMP::CGameSA*& SAMP::pGame() {
+	static CGameSA* dummy = nullptr;
+	if (SAMP::pGameAddr)
+		return *reinterpret_cast<CGameSA**>(SAMP::pGameAddr);
+	return *(SAMP::CGameSA**)SAMP_ADDROF(0x26E8F4);
+}
 
 SAMP::CGameSA::CGameSA() {
 	((void(__thiscall*)(CGameSA*))SAMP_ADDROF(0x9F870))(this);
@@ -322,7 +328,12 @@ float SAMP::CGameSA::FindGroundZ(CVectorSA vPoint) {
 }
 
 void SAMP::CGameSA::SetCursorMode(int nMode, BOOL bImmediatelyHideCursor) {
-	((void(__thiscall*)(CGameSA*, int, BOOL))SAMP_ADDROF(0x9FFE0))(this, nMode, bImmediatelyHideCursor);
+	if (this == nullptr) return;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		((void(__thiscall*)(CGameSA*, int, BOOL))SAMP_ADDROF(0x9FFE0))(this, nMode, bImmediatelyHideCursor);
+	} else if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+		((void(__thiscall*)(CGameSA*, int, BOOL))SAMP_ADDROF(0x9BD30))(this, nMode, bImmediatelyHideCursor);
+	}
 }
 
 void SAMP::CGameSA::InitGame() {
@@ -334,7 +345,13 @@ void SAMP::CGameSA::StartGame() {
 }
 
 BOOL SAMP::CGameSA::IsMenuVisible() {
-	return ((BOOL(__thiscall*)(CGameSA*))SAMP_ADDROF(0xA0210))(this);
+	if (this == nullptr) return FALSE;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		return ((BOOL(__thiscall*)(CGameSA*))SAMP_ADDROF(0xA0210))(this);
+	} else if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+		return ((BOOL(__thiscall*)(CGameSA*))SAMP_ADDROF(0x9BF80))(this);
+	}
+	return FALSE;
 }
 
 BOOL SAMP::CGameSA::IsStarted() {
@@ -590,7 +607,12 @@ SAMP::CObjectSA* SAMP::CGameSA::CreateObject(int nModel, CVectorSA position, CVe
 }
 
 void SAMP::CGameSA::ProcessInputEnabling() {
-	((void(__thiscall*)(CGameSA*))SAMP_ADDROF(0x9FEC0))(this);
+	if (this == nullptr) return;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		((void(__thiscall*)(CGameSA*))SAMP_ADDROF(0x9FEC0))(this);
+	} else if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+		((void(__thiscall*)(CGameSA*))SAMP_ADDROF(0x9BC10))(this);
+	}
 }
 
 void SAMP::CGameSA::ProcessFrameLimiter() {

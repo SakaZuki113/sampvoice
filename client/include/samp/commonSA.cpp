@@ -10,6 +10,11 @@
 #include "commonSA.h"
 
 DWORD SAMP::baseSampAddress { NULL };
+DWORD SAMP::pNetGameAddr { NULL };
+DWORD SAMP::pChatAddr { NULL };
+DWORD SAMP::pInputBoxAddr { NULL };
+DWORD SAMP::pScoreboardAddr { NULL };
+DWORD SAMP::pGameAddr { NULL };
 
 void SAMP::InitSamp(const DWORD baseAddress) noexcept
 {

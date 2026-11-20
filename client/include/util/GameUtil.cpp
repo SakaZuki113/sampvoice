@@ -130,19 +130,27 @@ void GameUtil::DisableAntiCheat(const AddressesBase& addrBase)
         const char* bytes;
     };
 
-    const std::vector<patch_t> patches =
-    {
+    std::vector<patch_t> patches;
 #define DefinePatch(offset, bytes) { offset, sizeof(bytes) - 1, bytes }
-#if defined(SAMP_R1)
-        DefinePatch(0x298116, "\xB8\x45\x00\x00\x00\xC2\x1C\x00"),
-        DefinePatch(0x286923, "\xB8\x45\x00\x00\x00\xC2\x1C\x00"),
-        DefinePatch(0x99250,  "\xC3")
-#elif defined(SAMP_R3)
-        DefinePatch(0xC4DC0,  "\xB8\x45\x00\x00\x00\xC2\x1C\x00"),
-        DefinePatch(0x9D1A0,  "\xC3")
-#endif
+    switch (addrBase.GetVersion())
+    {
+    case AddressesBase::SampVersion::R1:
+        patches = {
+            DefinePatch(0x298116, "\xB8\x45\x00\x00\x00\xC2\x1C\x00"),
+            DefinePatch(0x286923, "\xB8\x45\x00\x00\x00\xC2\x1C\x00"),
+            DefinePatch(0x99250,  "\xC3")
+        };
+        break;
+    case AddressesBase::SampVersion::R3:
+        patches = {
+            DefinePatch(0xC4DC0,  "\xB8\x45\x00\x00\x00\xC2\x1C\x00"),
+            DefinePatch(0x9D1A0,  "\xC3")
+        };
+        break;
+    default:
+        break;
+    }
 #undef  DefinePatch
-    };
 
     for (const patch_t& patch : patches)
     {

@@ -12,10 +12,9 @@
 #pragma once
 
 #include <memory>
-
 #include <Windows.h>
 
-struct AddressesBase {
+class AddressesBase {
 
     AddressesBase() = delete;
     AddressesBase(const AddressesBase&) noexcept = default;
@@ -25,11 +24,25 @@ struct AddressesBase {
 
 public:
 
+    enum class SampVersion {
+        Unknown,
+        R1,
+        R2,
+        R3,
+        R4,
+        R5,
+        DL
+    };
+
     explicit AddressesBase(DWORD baseAddr) noexcept;
 
     ~AddressesBase() noexcept = default;
 
 public:
+
+    bool IsValid() const noexcept;
+    SampVersion GetVersion() const noexcept;
+    static SampVersion GetGlobalVersion() noexcept;
 
     DWORD GetBaseAddr() const noexcept;
     DWORD GetRcInitAddr() const noexcept;
@@ -45,7 +58,18 @@ public:
     DWORD GetSpawnLocalPlayerFunc() const noexcept;
     DWORD GetDrawLabelFunc() const noexcept;
 
+    DWORD GetPNetGameAddr() const noexcept;
+    DWORD GetPChatAddr() const noexcept;
+    DWORD GetPInputBoxAddr() const noexcept;
+    DWORD GetPScoreboardAddr() const noexcept;
+    DWORD GetPGameAddr() const noexcept;
+
 private:
+
+    static SampVersion globalVersion;
+
+    bool isValid { false };
+    SampVersion version { SampVersion::Unknown };
 
     DWORD baseAddr { NULL };
     DWORD rcInitAddr { NULL };
@@ -60,6 +84,12 @@ private:
     DWORD deletePlayerFromPoolFunc { NULL };
     DWORD spawnLocalPlayerFunc { NULL };
     DWORD drawLabelFunc { NULL };
+
+    DWORD pNetGameAddr { NULL };
+    DWORD pChatAddr { NULL };
+    DWORD pInputBoxAddr { NULL };
+    DWORD pScoreboardAddr { NULL };
+    DWORD pGameAddr { NULL };
 
 };
 

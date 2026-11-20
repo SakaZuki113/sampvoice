@@ -8,6 +8,7 @@
 */
 
 #include "CInput.h"
+#include <util/AddressesBase.h>
 
 #if defined(SAMP_R1)
 
@@ -75,7 +76,12 @@ void SAMP::CInput::ProcessInput() {
 
 #elif defined(SAMP_R3)
 
-SAMP::CInput*& SAMP::pInputBox() { return *(SAMP::CInput**)SAMP_ADDROF(0x26E8CC); }
+SAMP::CInput*& SAMP::pInputBox() {
+	static CInput* dummy = nullptr;
+	if (SAMP::pInputBoxAddr)
+		return *reinterpret_cast<CInput**>(SAMP::pInputBoxAddr);
+	return *(SAMP::CInput**)SAMP_ADDROF(0x26E8CC);
+}
 
 SAMP::CInput::CInput(IDirect3DDevice9* pDevice) {
 	((void(__thiscall*)(CInput*, IDirect3DDevice9*))SAMP_ADDROF(0x68C60))(this, pDevice);
@@ -90,7 +96,14 @@ void SAMP::CInput::Open() {
 }
 
 void SAMP::CInput::Close() {
-	((void(__thiscall*)(CInput*))SAMP_ADDROF(0x68E10))(this);
+	if (this == nullptr) return;
+	this->m_bEnabled = FALSE;
+	this->m_szInput[0] = '\0';
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		((void(__thiscall*)(CInput*))SAMP_ADDROF(0x68E10))(this);
+	} else if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+		((void(__thiscall*)(CInput*))SAMP_ADDROF(0x658E0))(this);
+	}
 }
 
 void SAMP::CInput::AddRecall(const char* szString) {
@@ -118,7 +131,12 @@ void SAMP::CInput::SetDefaultCommand(CMDPROC proc) {
 }
 
 void SAMP::CInput::AddCommand(const char* szName, CMDPROC handler) {
-	((void(__thiscall*)(CInput*, const char*, CMDPROC))SAMP_ADDROF(0x69000))(this, szName, handler);
+	if (this == nullptr || szName == nullptr || handler == nullptr) return;
+	if (this->m_nCommandCount < MAX_CLIENT_CMDS) {
+		strncpy_s(this->m_szCommandName[this->m_nCommandCount], szName, MAX_CMD_LENGTH);
+		this->m_pCommandProc[this->m_nCommandCount] = handler;
+		this->m_nCommandCount++;
+	}
 }
 
 BOOL SAMP::CInput::MsgProc(int uMsg, int wParam, int lParam) {

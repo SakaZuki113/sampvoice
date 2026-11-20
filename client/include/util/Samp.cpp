@@ -25,9 +25,17 @@ bool Samp::Init(const AddressesBase& addrBase) noexcept
 
     Logger::LogToFile("[dbg:samp:init] : module initializing...");
 
+    if (!addrBase.GetSampInitAddr())
+    {
+        Logger::LogToFile("[err:samp:init] : sampInitAddr is not available");
+        return false;
+    }
+
     try
     {
-        Samp::hookSampFree = MakeJumpHook(addrBase.GetSampDestructAddr(), Samp::HookSampFree);
+        if (addrBase.GetSampDestructAddr())
+            Samp::hookSampFree = MakeJumpHook(addrBase.GetSampDestructAddr(), Samp::HookSampFree);
+
         Samp::hookSampInit = MakeJumpHook(addrBase.GetSampInitAddr(), Samp::HookSampInit);
     }
     catch (const std::exception& exception)
@@ -39,6 +47,11 @@ bool Samp::Init(const AddressesBase& addrBase) noexcept
     }
 
     SAMP::InitSamp(addrBase.GetBaseAddr());
+    SAMP::pNetGameAddr = addrBase.GetPNetGameAddr();
+    SAMP::pChatAddr = addrBase.GetPChatAddr();
+    SAMP::pInputBoxAddr = addrBase.GetPInputBoxAddr();
+    SAMP::pScoreboardAddr = addrBase.GetPScoreboardAddr();
+    SAMP::pGameAddr = addrBase.GetPGameAddr();
 
     Samp::loadCallbacks.clear();
     Samp::exitCallbacks.clear();

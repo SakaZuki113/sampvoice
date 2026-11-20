@@ -45,6 +45,11 @@ namespace SAMP {
 	typedef unsigned char NUMBER;
 
 	extern DWORD baseSampAddress;
+	extern DWORD pNetGameAddr;
+	extern DWORD pChatAddr;
+	extern DWORD pInputBoxAddr;
+	extern DWORD pScoreboardAddr;
+	extern DWORD pGameAddr;
 	extern void InitSamp(const DWORD baseAddress) noexcept;
 
 }

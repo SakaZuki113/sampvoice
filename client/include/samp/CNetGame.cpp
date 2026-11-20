@@ -8,6 +8,7 @@
 */
 
 #include "CNetGame.h"
+#include <util/AddressesBase.h>
 
 #if defined(SAMP_R1)
 
@@ -129,7 +130,10 @@ SAMP::CPlayerPool* SAMP::CNetGame::GetPlayerPool() {
 }
 
 SAMP::CVehiclePool* SAMP::CNetGame::GetVehiclePool() {
-	return ((CVehiclePool * (__thiscall*)(CNetGame*))SAMP_ADDROF(0x1170))(this);
+	if (this == nullptr || this->m_pPools == nullptr) return nullptr;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
+		return *reinterpret_cast<CVehiclePool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 0);
+	return this->m_pPools->m_pVehicle;
 }
 
 SAMP::CPickupPool* SAMP::CNetGame::GetPickupPool() {
@@ -194,7 +198,12 @@ void SAMP::CNetGame::ResetPools() {
 
 #elif defined(SAMP_R3)
 
-SAMP::CNetGame*& SAMP::pNetGame() { return *(SAMP::CNetGame**)SAMP_ADDROF(0x26E8DC); }
+SAMP::CNetGame*& SAMP::pNetGame() {
+	static CNetGame* dummy = nullptr;
+	if (SAMP::pNetGameAddr)
+		return *reinterpret_cast<CNetGame**>(SAMP::pNetGameAddr);
+	return *(SAMP::CNetGame**)SAMP_ADDROF(0x26E8DC);
+}
 TICK& SAMP::CNetGame::lastPlayersUpdateRequest() { return *(TICK*)SAMP_ADDROF(0x1189F0); }
 
 SAMP::CNetGame::CNetGame(const char* szHostAddress, int nPort, const char* szNick, const char* szPass) {
@@ -382,11 +391,17 @@ void SAMP::CNetGame::ProcessGameStuff() {
 }
 
 SAMP::CPlayerPool* SAMP::CNetGame::GetPlayerPool() {
-	return ((CPlayerPool * (__thiscall*)(CNetGame*))SAMP_ADDROF(0x1160))(this);
+	if (this == nullptr || this->m_pPools == nullptr) return nullptr;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
+		return *reinterpret_cast<CPlayerPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 4);
+	return this->m_pPools->m_pPlayer;
 }
 
 SAMP::CObjectPool* SAMP::CNetGame::GetObjectPool() {
-	return ((CObjectPool * (__thiscall*)(CNetGame*))SAMP_ADDROF(0x2DF0))(this);
+	if (this == nullptr || this->m_pPools == nullptr) return nullptr;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
+		return *reinterpret_cast<CObjectPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 12);
+	return this->m_pPools->m_pObject;
 }
 
 SAMP::CActorPool* SAMP::CNetGame::GetActorPool() {
@@ -402,7 +417,10 @@ BOOL SAMP::CNetGame::LanMode() {
 }
 
 SAMP::CVehiclePool* SAMP::CNetGame::GetVehiclePool() {
-	return ((CVehiclePool * (__thiscall*)(CNetGame*))SAMP_ADDROF(0x1170))(this);
+	if (this == nullptr || this->m_pPools == nullptr) return nullptr;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
+		return *reinterpret_cast<CVehiclePool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 0);
+	return this->m_pPools->m_pVehicle;
 }
 
 RakClientInterface* SAMP::CNetGame::GetRakClient() {

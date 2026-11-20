@@ -8,6 +8,7 @@
 */
 
 #include "CScoreboard.h"
+#include <util/AddressesBase.h>
 
 #if defined(SAMP_R1)
 
@@ -51,7 +52,12 @@ void SAMP::CScoreboard::UpdateList() {
 
 #elif defined(SAMP_R3)
 
-SAMP::CScoreboard*& SAMP::pScoreboard() { return *(SAMP::CScoreboard**)SAMP_ADDROF(0x26E894); }
+SAMP::CScoreboard*& SAMP::pScoreboard() {
+	static CScoreboard* dummy = nullptr;
+	if (SAMP::pScoreboardAddr)
+		return *reinterpret_cast<CScoreboard**>(SAMP::pScoreboardAddr);
+	return *(SAMP::CScoreboard**)SAMP_ADDROF(0x26E894);
+}
 
 SAMP::CScoreboard::CScoreboard(IDirect3DDevice9* pDevice) {
 	((void(__thiscall*)(CScoreboard*, IDirect3DDevice9*))SAMP_ADDROF(0x6E2C0))(this, pDevice);
@@ -66,7 +72,13 @@ void SAMP::CScoreboard::GetRect(CRectSA* pRect) {
 }
 
 void SAMP::CScoreboard::Close(bool bHideCursor) {
-	((void(__thiscall*)(CScoreboard*, bool))SAMP_ADDROF(0x6E270))(this, bHideCursor);
+	if (this == nullptr) return;
+	this->m_bIsEnabled = FALSE;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		((void(__thiscall*)(CScoreboard*, bool))SAMP_ADDROF(0x6E270))(this, bHideCursor);
+	} else if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+		((void(__thiscall*)(CScoreboard*, bool))SAMP_ADDROF(0x6A320))(this, bHideCursor);
+	}
 }
 
 void SAMP::CScoreboard::ResetDialogControls(CDXUTDialog* pDialog) {

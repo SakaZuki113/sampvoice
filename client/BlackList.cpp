@@ -86,19 +86,26 @@ bool BlackList::Init(const AddressesBase& addrBase) noexcept
 
     Logger::LogToFile("[sv:dbg:blacklist:init] : module initializing...");
 
-    try
+    if (addrBase.GetDeletePlayerFromPoolFunc() && addrBase.GetCreatePlayerInPoolFunc())
     {
-        BlackList::deletePlayerInPoolHook = MakeJumpHook(addrBase.GetDeletePlayerFromPoolFunc(),
-                                                         BlackList::DeletePlayerFromPoolHook);
-        BlackList::createPlayerInPoolHook = MakeJumpHook(addrBase.GetCreatePlayerInPoolFunc(),
-                                                         BlackList::CreatePlayerInPoolHook);
+        try
+        {
+            BlackList::deletePlayerInPoolHook = MakeJumpHook(addrBase.GetDeletePlayerFromPoolFunc(),
+                                                             BlackList::DeletePlayerFromPoolHook);
+            BlackList::createPlayerInPoolHook = MakeJumpHook(addrBase.GetCreatePlayerInPoolFunc(),
+                                                             BlackList::CreatePlayerInPoolHook);
+        }
+        catch (const std::exception& exception)
+        {
+            Logger::LogToFile("[sv:err:blacklist:init] : failed to create function hooks");
+            BlackList::createPlayerInPoolHook.reset();
+            BlackList::deletePlayerInPoolHook.reset();
+            return false;
+        }
     }
-    catch (const std::exception& exception)
+    else
     {
-        Logger::LogToFile("[sv:err:blacklist:init] : failed to create function hooks");
-        BlackList::createPlayerInPoolHook.reset();
-        BlackList::deletePlayerInPoolHook.reset();
-        return false;
+        Logger::LogToFile("[sv:dbg:blacklist:init] : pool hooks not supported on this version, skipping");
     }
 
     Logger::LogToFile("[sv:dbg:blacklist:init] : module initialized");

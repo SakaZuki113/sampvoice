@@ -64,15 +64,20 @@ const char* SAMP::CPlayerPool::GetLocalPlayerName() {
 }
 
 SAMP::CRemotePlayer* SAMP::CPlayerPool::GetPlayer(ID nId) {
-	return ((CRemotePlayer * (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10F0))(this, nId);
+	if (this == nullptr || nId >= MAX_PLAYERS) return nullptr;
+	if (this->m_pObject[nId] != nullptr)
+		return this->m_pObject[nId]->m_pPlayer;
+	return nullptr;
 }
 
 SAMP::CPlayerInfo* SAMP::CPlayerPool::GetAt(ID nId) {
-	return ((CPlayerInfo * (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10D0))(this, nId);
+	if (this == nullptr || nId >= MAX_PLAYERS) return nullptr;
+	return this->m_pObject[nId];
 }
 
 BOOL SAMP::CPlayerPool::IsConnected(ID nId) {
-	return ((BOOL(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10B0))(this, nId);
+	if (this == nullptr || nId >= MAX_PLAYERS) return FALSE;
+	return this->m_bNotEmpty[nId];
 }
 
 BOOL SAMP::CPlayerPool::IsNPC(ID nId) {

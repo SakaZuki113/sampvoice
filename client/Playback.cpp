@@ -29,6 +29,12 @@ bool Playback::Init(const AddressesBase& addrBase) noexcept
 
     Logger::LogToFile("[sv:dbg:playback:init] : module initializing...");
 
+    if (!addrBase.GetBassInitCallAddr() || !addrBase.GetBassSetConfigAddr())
+    {
+        Logger::LogToFile("[sv:err:playback:init] : failed to find bass init/setconfig addresses");
+        return false;
+    }
+
     try
     {
         Playback::bassInitHook = MakeCallHook(addrBase.GetBassInitCallAddr(), Playback::BassInitHookFunc);

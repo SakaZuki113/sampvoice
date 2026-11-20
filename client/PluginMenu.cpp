@@ -36,12 +36,15 @@ bool PluginMenu::Init(IDirect3DDevice9* const pDevice, const AddressesBase& cons
     try
     {
         const BYTE returnOpcode { 0xC3 };
-        PluginMenu::openChatFuncPatch = MakePatch(addrBase.GetOpenChatFunc(),
-            &returnOpcode, sizeof(returnOpcode), false);
-        PluginMenu::openScoreboardFuncPatch = MakePatch(addrBase.GetOpenScoreboardFunc(),
-            &returnOpcode, sizeof(returnOpcode), false);
-        PluginMenu::switchModeFuncPatch = MakePatch(addrBase.GetSwitchModeFunc(),
-            &returnOpcode, sizeof(returnOpcode), false);
+        if (addrBase.GetOpenChatFunc())
+            PluginMenu::openChatFuncPatch = MakePatch(addrBase.GetOpenChatFunc(),
+                &returnOpcode, sizeof(returnOpcode), false);
+        if (addrBase.GetOpenScoreboardFunc())
+            PluginMenu::openScoreboardFuncPatch = MakePatch(addrBase.GetOpenScoreboardFunc(),
+                &returnOpcode, sizeof(returnOpcode), false);
+        if (addrBase.GetSwitchModeFunc())
+            PluginMenu::switchModeFuncPatch = MakePatch(addrBase.GetSwitchModeFunc(),
+                &returnOpcode, sizeof(returnOpcode), false);
     }
     catch (const std::exception& exception)
     {
@@ -265,9 +268,9 @@ bool PluginMenu::Show() noexcept
     if (!PluginMenu::initStatus || GameUtil::IsMenuActive() || PluginMenu::showStatus)
         return false;
 
-    PluginMenu::openChatFuncPatch->Enable();
-    PluginMenu::openScoreboardFuncPatch->Enable();
-    PluginMenu::switchModeFuncPatch->Enable();
+    if (PluginMenu::openChatFuncPatch) PluginMenu::openChatFuncPatch->Enable();
+    if (PluginMenu::openScoreboardFuncPatch) PluginMenu::openScoreboardFuncPatch->Enable();
+    if (PluginMenu::switchModeFuncPatch) PluginMenu::switchModeFuncPatch->Enable();
 
     PluginMenu::blurLevelDeviation = kBlurLevelIncrement;
 
@@ -317,9 +320,9 @@ void PluginMenu::Hide() noexcept
         pChat->m_nMode = PluginMenu::prevChatMode;
     }
 
-    PluginMenu::switchModeFuncPatch->Disable();
-    PluginMenu::openScoreboardFuncPatch->Disable();
-    PluginMenu::openChatFuncPatch->Disable();
+    if (PluginMenu::switchModeFuncPatch) PluginMenu::switchModeFuncPatch->Disable();
+    if (PluginMenu::openScoreboardFuncPatch) PluginMenu::openScoreboardFuncPatch->Disable();
+    if (PluginMenu::openChatFuncPatch) PluginMenu::openChatFuncPatch->Disable();
 
     ImGui::SetWindowFocus(nullptr);
 

@@ -8,6 +8,7 @@
 */
 
 #include "CChat.h"
+#include <util/AddressesBase.h>
 
 #if defined(SAMP_R1)
 
@@ -95,7 +96,12 @@ void SAMP::CChat::FilterOutInvalidChars(char* szText) {
 
 #elif defined(SAMP_R3)
 
-SAMP::CChat*& SAMP::pChat() { return *(SAMP::CChat**)SAMP_ADDROF(0x26E8C8); }
+SAMP::CChat*& SAMP::pChat() {
+	static CChat* dummy = nullptr;
+	if (SAMP::pChatAddr)
+		return *reinterpret_cast<CChat**>(SAMP::pChatAddr);
+	return *(SAMP::CChat**)SAMP_ADDROF(0x26E8C8);
+}
 
 SAMP::CChat::CChat(IDirect3DDevice9* pDevice, CFonts* pFontRenderer, const char* szLogPath) {
 	((void(__thiscall*)(CChat*, IDirect3DDevice9*, CFonts*, const char*))SAMP_ADDROF(0x67C00))(this, pDevice, pFontRenderer, szLogPath);
@@ -158,7 +164,12 @@ void SAMP::CChat::Render() {
 }
 
 void SAMP::CChat::AddEntry(int nType, const char* szText, const char* szPrefix, D3DCOLOR textColor, D3DCOLOR prefixColor) {
-	((void(__thiscall*)(CChat*, int, const char*, const char*, D3DCOLOR, D3DCOLOR))SAMP_ADDROF(0x67460))(this, nType, szText, szPrefix, textColor, prefixColor);
+	if (this == nullptr || szText == nullptr) return;
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		((void(__thiscall*)(CChat*, int, const char*, const char*, D3DCOLOR, D3DCOLOR))SAMP_ADDROF(0x67460))(this, nType, szText, szPrefix, textColor, prefixColor);
+	} else if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+		((void(__thiscall*)(CChat*, int, const char*, const char*, D3DCOLOR, D3DCOLOR))SAMP_ADDROF(0x64450))(this, nType, szText, szPrefix, textColor, prefixColor);
+	}
 }
 
 void SAMP::CChat::Draw() {

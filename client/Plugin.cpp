@@ -78,6 +78,12 @@ bool Plugin::OnSampLoad(const HMODULE hModule) noexcept
 {
     Plugin::pAddresses = MakeAddressesBase(reinterpret_cast<DWORD>(hModule));
 
+    if (!Plugin::pAddresses || !Plugin::pAddresses->IsValid())
+    {
+        Logger::LogToFile("[sv:err:plugin] : unsupported SA-MP version or failed to detect addresses");
+        return false;
+    }
+
     if (!PluginConfig::Load(Path() / SV::kConfigFileName))
     {
         Logger::LogToFile("[sv:err:plugin] : failed to load configs");

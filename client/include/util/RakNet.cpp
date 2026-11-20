@@ -22,16 +22,26 @@ bool RakNet::Init(const AddressesBase& addrBase) noexcept
 
     Logger::LogToFile("[dbg:raknet:init] : module initializing...");
 
+    if (!addrBase.GetRcInitAddr())
+    {
+        Logger::LogToFile("[err:raknet:init] : rcInitAddr not found");
+        return false;
+    }
+
     if (*reinterpret_cast<WORD*>(addrBase.GetRcInitAddr()) == 0x4689)
         rakClientOffset = *reinterpret_cast<BYTE*>(addrBase.GetRcInitAddr() + 2);
     else if (*reinterpret_cast<WORD*>(addrBase.GetRcInitAddr()) == 0x8689)
         rakClientOffset = *reinterpret_cast<DWORD*>(addrBase.GetRcInitAddr() + 2);
+    else if (*reinterpret_cast<WORD*>(addrBase.GetRcInitAddr()) == 0x0689)
+        rakClientOffset = 0;
 
     Logger::LogToFile("[dbg:raknet:init] : finded rakclient interface offset (value:0x%x)", rakClientOffset);
 
     try
     {
-        RakNet::sampDestructHook = MakeJumpHook(addrBase.GetSampDestructAddr(), RakNet::HookSampDestruct);
+        if (addrBase.GetSampDestructAddr())
+            RakNet::sampDestructHook = MakeJumpHook(addrBase.GetSampDestructAddr(), RakNet::HookSampDestruct);
+
         RakNet::rakClientInitHook = MakeJumpHook(addrBase.GetRcInitAddr(), RakNet::HookRaknetInit);
     }
     catch (const std::exception& exception)
