@@ -127,12 +127,16 @@ namespace SV
 
 		// -------------------------------------------------------------------------------------
 
-		bool SvAddKey(const uint16_t playerId, const uint8_t keyId) override
+		bool SvAddKey(const uint16_t playerId, const uint8_t keyId, const bool isPushToTalk = true) override
 		{
 			bool addKeyStatus{ false };
 
 			const auto pPlayerInfo = PlayerStore::RequestPlayerWithUniqueAccess(playerId);
-			if (pPlayerInfo != nullptr) addKeyStatus = pPlayerInfo->keys.insert(keyId).second;
+			if (pPlayerInfo != nullptr)
+			{
+				addKeyStatus = pPlayerInfo->keys.insert(keyId).second;
+				if (isPushToTalk) pPlayerInfo->pttKeys.insert(keyId);
+			}
 			PlayerStore::ReleasePlayerWithUniqueAccess(playerId);
 
 			if (!addKeyStatus) return false;
@@ -141,6 +145,7 @@ namespace SV
 
 			PackAlloca(controlPacket, SV::ControlPacketType::addKey, sizeof(SV::AddKeyPacket));
 			PackGetStruct(controlPacket, SV::AddKeyPacket)->keyId = keyId;
+			PackGetStruct(controlPacket, SV::AddKeyPacket)->isPushToTalk = isPushToTalk ? 1 : 0;
 
 			return NetHandler::SendControlPacket(playerId, *controlPacket);
 		}
@@ -161,7 +166,11 @@ namespace SV
 			bool removeKeyStatus{ false };
 
 			const auto pPlayerInfo = PlayerStore::RequestPlayerWithUniqueAccess(playerId);
-			if (pPlayerInfo != nullptr) removeKeyStatus = pPlayerInfo->keys.erase(keyId);
+			if (pPlayerInfo != nullptr)
+			{
+				removeKeyStatus = pPlayerInfo->keys.erase(keyId) != 0;
+				pPlayerInfo->pttKeys.erase(keyId);
+			}
 			PlayerStore::ReleasePlayerWithUniqueAccess(playerId);
 
 			if (!removeKeyStatus) return false;
@@ -177,7 +186,11 @@ namespace SV
 		void SvRemoveAllKeys(const uint16_t playerId) override
 		{
 			const auto pPlayerInfo = PlayerStore::RequestPlayerWithUniqueAccess(playerId);
-			if (pPlayerInfo != nullptr) pPlayerInfo->keys.clear();
+			if (pPlayerInfo != nullptr)
+			{
+				pPlayerInfo->keys.clear();
+				pPlayerInfo->pttKeys.clear();
+			}
 			PlayerStore::ReleasePlayerWithUniqueAccess(playerId);
 
 			if (pPlayerInfo == nullptr) return;

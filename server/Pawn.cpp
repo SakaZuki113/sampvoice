@@ -242,16 +242,17 @@ cell AMX_NATIVE_CALL Pawn::n_SvStopRecord(AMX* const amx, cell* const params)
 cell AMX_NATIVE_CALL Pawn::n_SvAddKey(AMX* const amx, cell* const params)
 {
 	if (Pawn::pInterface == nullptr) return false;
-	if (params[0] != 2 * sizeof(cell)) return false;
+	if (params[0] < 2 * sizeof(cell)) return false;
 
 	const auto playerid = static_cast<uint16_t>(params[1]);
 	const auto keyid = static_cast<uint8_t>(params[2]);
+	const auto isPushToTalk = (params[0] >= 3 * sizeof(cell)) ? static_cast<bool>(params[3]) : true;
 
-	const auto result = Pawn::pInterface->SvAddKey(playerid, keyid);
+	const auto result = Pawn::pInterface->SvAddKey(playerid, keyid, isPushToTalk);
 
 	if (Pawn::debugStatus) Logger::Log(
-		"[sv:dbg:pawn:SvAddKey] : playerid(%hu), keyid(0x%hhx) : return(%hhu)",
-		playerid, keyid, result
+		"[sv:dbg:pawn:SvAddKey] : playerid(%hu), keyid(0x%hhx), ptt(%d) : return(%hhu)",
+		playerid, keyid, isPushToTalk, result
 	);
 
 	return result;

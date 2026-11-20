@@ -27,8 +27,8 @@ struct KeyEvent {
 
 public:
 
-    explicit KeyEvent(BYTE keyId, bool isPressed, int activeKeys) noexcept
-        : keyId(keyId), isPressed(isPressed), activeKeys(activeKeys) {}
+    explicit KeyEvent(BYTE keyId, bool isPressed, int activeKeys, int activePttKeys = 0, bool isPushToTalk = true) noexcept
+        : keyId(keyId), isPressed(isPressed), activeKeys(activeKeys), activePttKeys(activePttKeys), isPushToTalk(isPushToTalk) {}
 
     ~KeyEvent() noexcept = default;
 
@@ -37,6 +37,8 @@ public:
     BYTE keyId { NULL };
     bool isPressed { false };
     int activeKeys { 0 };
+    int activePttKeys { 0 };
+    bool isPushToTalk { true };
 
 };
 
@@ -51,7 +53,7 @@ class KeyFilter {
 
 public:
 
-    static bool AddKey(BYTE keyId) noexcept;
+    static bool AddKey(BYTE keyId, bool isPushToTalk = true) noexcept;
     static bool RemoveKey(BYTE keyId) noexcept;
 
     static void RemoveAllKeys() noexcept;
@@ -68,7 +70,9 @@ private:
 
     static std::array<bool, 256> pressedKeys;
     static std::array<bool, 256> statusKeys;
+    static std::array<bool, 256> pttKeys;
 
     static int activeKeys;
+    static int activePttKeys;
 
 };

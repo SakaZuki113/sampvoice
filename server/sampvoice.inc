@@ -42,7 +42,7 @@ native SV_UINT:SvGetVersion(SV_UINT:playerid);
 native SV_BOOL:SvHasMicro(SV_UINT:playerid);
 native SV_BOOL:SvStartRecord(SV_UINT:playerid);
 native SV_BOOL:SvStopRecord(SV_UINT:playerid);
-native SV_BOOL:SvAddKey(SV_UINT:playerid, SV_UINT:keyid);
+native SV_BOOL:SvAddKey(SV_UINT:playerid, SV_UINT:keyid, SV_BOOL:isPushToTalk = SV_TRUE);
 native SV_BOOL:SvHasKey(SV_UINT:playerid, SV_UINT:keyid);
 native SV_BOOL:SvRemoveKey(SV_UINT:playerid, SV_UINT:keyid);
 native SV_VOID:SvRemoveAllKeys(SV_UINT:playerid);

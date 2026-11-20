@@ -31,6 +31,11 @@ void LocalStream::UpdateDistance(const float distance)
 
 	PackGetStruct(&*this->packetStreamUpdateDistance, SV::UpdateLStreamDistancePacket)->distance = distance;
 
+	if (this->packetCreateStream != nullptr)
+	{
+		PackGetStruct(&*this->packetCreateStream, SV::CreateLStreamAtPacket)->distance = distance;
+	}
+
 	IPlayerPool* playerPool = SampVoiceComponent::GetPlayers();
 	for (IPlayer* player : playerPool->entries())
 	{

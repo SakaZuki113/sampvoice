@@ -133,6 +133,7 @@ namespace SV {
 
 	struct AddKeyPacket {
 		uint8_t keyId;
+		uint8_t isPushToTalk;
 	};
 
 	struct RemoveKeyPacket {

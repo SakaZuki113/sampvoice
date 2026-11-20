@@ -41,5 +41,6 @@ public:
 	std::set<Stream*> listenerStreams;
 	std::set<Stream*> speakerStreams;
 	std::set<uint8_t> keys;
+	std::set<uint8_t> pttKeys;
 
 };

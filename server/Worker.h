@@ -57,7 +57,7 @@ private:
 			const auto pPlayerInfo = PlayerStore::RequestPlayerWithSharedAccess(voicePacketRef->sender);
 
 			if (pPlayerInfo != nullptr && !pPlayerInfo->muteStatus.load(std::memory_order_relaxed) &&
-				(pPlayerInfo->recordStatus.load(std::memory_order_relaxed) || !pPlayerInfo->keys.empty()))
+				(pPlayerInfo->recordStatus.load(std::memory_order_relaxed) || !pPlayerInfo->pttKeys.empty()))
 			{
 				for (const auto stream : pPlayerInfo->speakerStreams)
 					stream->SendVoicePacket(*&voicePacketRef);

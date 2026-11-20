@@ -13,14 +13,15 @@
 
 #include "Logger.h"
 
-bool KeyFilter::AddKey(const BYTE keyId) noexcept
+bool KeyFilter::AddKey(const BYTE keyId, const bool isPushToTalk) noexcept
 {
     if (KeyFilter::statusKeys[keyId])
         return false;
 
-    Logger::LogToFile("[dbg:keyfilter] : adding key (id:0x%hhx)...", keyId);
+    Logger::LogToFile("[dbg:keyfilter] : adding key (id:0x%hhx, ptt:%d)...", keyId, isPushToTalk);
 
     KeyFilter::statusKeys[keyId] = true;
+    KeyFilter::pttKeys[keyId] = isPushToTalk;
 
     return true;
 }
@@ -35,6 +36,7 @@ bool KeyFilter::RemoveKey(const BYTE keyId) noexcept
     Logger::LogToFile("[dbg:keyfilter] : removing key (id:0x%hhx)...", keyId);
 
     KeyFilter::statusKeys[keyId] = false;
+    KeyFilter::pttKeys[keyId] = false;
 
     return true;
 }
@@ -47,6 +49,7 @@ void KeyFilter::RemoveAllKeys() noexcept
         KeyFilter::RemoveKey(keyId);
 
     KeyFilter::activeKeys = 0;
+    KeyFilter::activePttKeys = 0;
 }
 
 void KeyFilter::ReleaseAllKeys() noexcept
@@ -57,6 +60,7 @@ void KeyFilter::ReleaseAllKeys() noexcept
         KeyFilter::PushReleaseEvent(keyId);
 
     KeyFilter::activeKeys = 0;
+    KeyFilter::activePttKeys = 0;
 }
 
 bool KeyFilter::PushPressEvent(const BYTE keyId) noexcept
@@ -67,11 +71,17 @@ bool KeyFilter::PushPressEvent(const BYTE keyId) noexcept
     if (KeyFilter::pressedKeys[keyId])
         return false;
 
+    const bool isPtt = KeyFilter::pttKeys[keyId];
+    const int newPttKeys = isPtt ? (KeyFilter::activePttKeys + 1) : KeyFilter::activePttKeys;
+
     KeyFilter::pressedKeys[keyId] = KeyFilter::keyQueue
-        .try_emplace(keyId, true, KeyFilter::activeKeys + 1);
+        .try_emplace(keyId, true, KeyFilter::activeKeys + 1, newPttKeys, isPtt);
 
     if (KeyFilter::pressedKeys[keyId])
+    {
         ++KeyFilter::activeKeys;
+        if (isPtt) ++KeyFilter::activePttKeys;
+    }
 
     return KeyFilter::pressedKeys[keyId];
 }
@@ -81,11 +91,17 @@ bool KeyFilter::PushReleaseEvent(const BYTE keyId) noexcept
     if (!KeyFilter::pressedKeys[keyId])
         return false;
 
+    const bool isPtt = KeyFilter::pttKeys[keyId];
+    const int newPttKeys = (isPtt && KeyFilter::activePttKeys > 0) ? (KeyFilter::activePttKeys - 1) : KeyFilter::activePttKeys;
+
     KeyFilter::pressedKeys[keyId] = !KeyFilter::keyQueue
-        .try_emplace(keyId, false, KeyFilter::activeKeys - 1);
+        .try_emplace(keyId, false, KeyFilter::activeKeys - 1, newPttKeys, isPtt);
 
     if (!KeyFilter::pressedKeys[keyId])
+    {
         --KeyFilter::activeKeys;
+        if (isPtt && KeyFilter::activePttKeys > 0) --KeyFilter::activePttKeys;
+    }
 
     return !KeyFilter::pressedKeys[keyId];
 }
@@ -105,5 +121,7 @@ SPSCQueue<KeyEvent> KeyFilter::keyQueue { 256 };
 
 std::array<bool, 256> KeyFilter::pressedKeys {};
 std::array<bool, 256> KeyFilter::statusKeys {};
+std::array<bool, 256> KeyFilter::pttKeys {};
 
 int KeyFilter::activeKeys { 0 };
+int KeyFilter::activePttKeys { 0 };

@@ -124,6 +124,7 @@ namespace SV
     struct AddKeyPacket
     {
         UINT8 keyId;
+        UINT8 isPushToTalk;
     };
 
     struct RemoveKeyPacket

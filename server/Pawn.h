@@ -43,7 +43,7 @@ public:
 	// --------------------------------------------------------------------------
 
 	virtual bool    SvAddKey(uint16_t playerid,
-		uint8_t keyid) = 0;
+		uint8_t keyid, bool isPushToTalk = true) = 0;
 
 	virtual bool    SvHasKey(uint16_t playerid,
 		uint8_t keyid) = 0;

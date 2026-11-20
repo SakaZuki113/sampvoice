@@ -201,21 +201,22 @@ void Plugin::MainLoop()
     {
         if (keyEvent.isPressed)
         {
-            Logger::LogToFile("[sv:dbg:plugin] : activation key(%hhx) pressed", keyEvent.keyId);
+            Logger::LogToFile("[sv:dbg:plugin] : activation key(%hhx) pressed (ptt:%d)", keyEvent.keyId, keyEvent.isPushToTalk);
 
-            if (!Record::GetMicroEnable()) continue;
-
-            if (!Plugin::recordBusy && !Plugin::recordStatus && keyEvent.activeKeys == 1)
+            if (keyEvent.isPushToTalk && Record::GetMicroEnable())
             {
-                if (!Plugin::muteStatus)
+                if (!Plugin::recordBusy && !Plugin::recordStatus && keyEvent.activePttKeys == 1)
                 {
-                    Plugin::recordStatus = true;
-                    MicroIcon::SwitchToActiveIcon();
-                    Record::StartRecording();
-                }
-                else
-                {
-                    MicroIcon::SwitchToMutedIcon();
+                    if (!Plugin::muteStatus)
+                    {
+                        Plugin::recordStatus = true;
+                        MicroIcon::SwitchToActiveIcon();
+                        Record::StartRecording();
+                    }
+                    else
+                    {
+                        MicroIcon::SwitchToMutedIcon();
+                    }
                 }
             }
 
@@ -230,14 +231,15 @@ void Plugin::MainLoop()
         }
         else
         {
-            Logger::LogToFile("[sv:dbg:plugin] : activation key(%hhx) released", keyEvent.keyId);
+            Logger::LogToFile("[sv:dbg:plugin] : activation key(%hhx) released (ptt:%d)", keyEvent.keyId, keyEvent.isPushToTalk);
 
-            if (!Record::GetMicroEnable()) continue;
-
-            if (!Plugin::recordBusy && Plugin::recordStatus && !keyEvent.activeKeys)
+            if (keyEvent.isPushToTalk && Record::GetMicroEnable())
             {
-                MicroIcon::SwitchToPassiveIcon();
-                Plugin::recordStatus = false;
+                if (!Plugin::recordBusy && Plugin::recordStatus && !keyEvent.activePttKeys)
+                {
+                    MicroIcon::SwitchToPassiveIcon();
+                    Plugin::recordStatus = false;
+                }
             }
 
             if (Plugin::muteStatus) continue;
@@ -347,11 +349,13 @@ void Plugin::ControlPacketHandler(const ControlPacket& controlPacket)
         case SV::ControlPacketType::addKey:
         {
             const auto& stData = *reinterpret_cast<const SV::AddKeyPacket*>(controlPacket.data);
-            if (controlPacket.length != sizeof(stData)) break;
+            if (controlPacket.length < sizeof(uint8_t)) break;
 
-            Logger::LogToFile("[sv:dbg:plugin:addkey] : keyid(0x%hhx)", stData.keyId);
+            const bool isPushToTalk = (controlPacket.length >= sizeof(SV::AddKeyPacket)) ? (stData.isPushToTalk != 0) : true;
 
-            KeyFilter::AddKey(stData.keyId);
+            Logger::LogToFile("[sv:dbg:plugin:addkey] : keyid(0x%hhx), ptt(%d)", stData.keyId, isPushToTalk);
+
+            KeyFilter::AddKey(stData.keyId, isPushToTalk);
         } break;
         case SV::ControlPacketType::removeKey:
         {
