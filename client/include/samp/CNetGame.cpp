@@ -391,17 +391,27 @@ void SAMP::CNetGame::ProcessGameStuff() {
 }
 
 SAMP::CPlayerPool* SAMP::CNetGame::GetPlayerPool() {
-	if (this == nullptr || this->m_pPools == nullptr) return nullptr;
-	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
-		return *reinterpret_cast<CPlayerPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 4);
-	return this->m_pPools->m_pPlayer;
+	if (this == nullptr) return nullptr;
+	__try {
+		if (this->m_pPools == nullptr) return nullptr;
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
+			return *reinterpret_cast<CPlayerPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 4);
+		return this->m_pPools->m_pPlayer;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
 }
 
 SAMP::CObjectPool* SAMP::CNetGame::GetObjectPool() {
-	if (this == nullptr || this->m_pPools == nullptr) return nullptr;
-	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
-		return *reinterpret_cast<CObjectPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 12);
-	return this->m_pPools->m_pObject;
+	if (this == nullptr) return nullptr;
+	__try {
+		if (this->m_pPools == nullptr) return nullptr;
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
+			return *reinterpret_cast<CObjectPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 12);
+		return this->m_pPools->m_pObject;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
 }
 
 SAMP::CActorPool* SAMP::CNetGame::GetActorPool() {
@@ -417,10 +427,15 @@ BOOL SAMP::CNetGame::LanMode() {
 }
 
 SAMP::CVehiclePool* SAMP::CNetGame::GetVehiclePool() {
-	if (this == nullptr || this->m_pPools == nullptr) return nullptr;
-	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
-		return *reinterpret_cast<CVehiclePool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 0);
-	return this->m_pPools->m_pVehicle;
+	if (this == nullptr) return nullptr;
+	__try {
+		if (this->m_pPools == nullptr) return nullptr;
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
+			return *reinterpret_cast<CVehiclePool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 0);
+		return this->m_pPools->m_pVehicle;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
 }
 
 RakClientInterface* SAMP::CNetGame::GetRakClient() {

@@ -8,6 +8,7 @@
 */
 
 #include "CPlayerPool.h"
+#include <util/AddressesBase.h>
 
 #if defined(SAMP_R1)
 
@@ -165,55 +166,162 @@ BOOL SAMP::CPlayerPool::Create(ID nId, const char* szName, BOOL bIsNPC) {
 }
 
 SAMP::CRemotePlayer* SAMP::CPlayerPool::GetPlayer(ID nId) {
-	return ((CRemotePlayer * (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10F0))(this, nId);
+	if (this == nullptr || nId >= MAX_PLAYERS) return nullptr;
+	__try {
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+			return ((CRemotePlayer * (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10F0))(this, nId);
+		}
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+			return ((CRemotePlayer * (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10F0))(this, nId);
+		}
+		if (this->m_pObject[nId] != nullptr)
+			return this->m_pObject[nId]->m_pPlayer;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
+	return nullptr;
 }
 
 const char* SAMP::CPlayerPool::GetLocalPlayerName() {
-	return ((const char* (__thiscall*)(CPlayerPool*))SAMP_ADDROF(0xA170))(this);
+	if (this == nullptr) return nullptr;
+	__try {
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+			return ((const char* (__thiscall*)(CPlayerPool*))SAMP_ADDROF(0xA170))(this);
+		}
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+			return ((const char* (__thiscall*)(CPlayerPool*))SAMP_ADDROF(0xA170))(this);
+		}
+		const DWORD cap = *reinterpret_cast<const DWORD*>(reinterpret_cast<const BYTE*>(this) + 0x2F36);
+		if (cap >= 16) {
+			const char* const* pStr = reinterpret_cast<const char* const*>(reinterpret_cast<const BYTE*>(this) + 0x2F22);
+			if (pStr && *pStr) return *pStr;
+		}
+		return reinterpret_cast<const char*>(reinterpret_cast<const BYTE*>(this) + 0x2F22);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
 }
 
 BOOL SAMP::CPlayerPool::IsDisconnected(ID nId) {
-	return ((BOOL(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10D0))(this, nId);
+	if (this == nullptr || nId >= MAX_PLAYERS) return TRUE;
+	return !IsConnected(nId);
 }
 
 BOOL SAMP::CPlayerPool::IsConnected(ID nId) {
-	return ((BOOL(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10B0))(this, nId);
+	if (this == nullptr || nId >= MAX_PLAYERS) return FALSE;
+	__try {
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+			return ((BOOL(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10B0))(this, nId);
+		}
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+			return ((BOOL(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x10B0))(this, nId);
+		}
+		return this->m_bNotEmpty[nId];
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return FALSE;
+	}
 }
 
 void SAMP::CPlayerPool::SetLocalPlayerName(const char* szName) {
-	((void(__thiscall*)(CPlayerPool*, const char*))SAMP_ADDROF(0xB5C0))(this, szName);
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		((void(__thiscall*)(CPlayerPool*, const char*))SAMP_ADDROF(0xB5C0))(this, szName);
+	}
 }
 
 void SAMP::CPlayerPool::SetAt(ID nId, CPlayerInfo* pObject) {
-	((void(__thiscall*)(CPlayerPool*, ID, CPlayerInfo*))SAMP_ADDROF(0x133E0))(this, nId, pObject);
+	if (this == nullptr || nId >= MAX_PLAYERS) return;
+	this->m_pObject[nId] = pObject;
+	this->m_bNotEmpty[nId] = (pObject != nullptr);
 }
 
 int SAMP::CPlayerPool::GetScore(ID nId) {
-	return ((int(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x6E0E0))(this, nId);
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		return ((int(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x6E0E0))(this, nId);
+	}
+	return 0;
 }
 
 int SAMP::CPlayerPool::GetPing(ID nId) {
-	return ((int(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x6E110))(this, nId);
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		return ((int(__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x6E110))(this, nId);
+	}
+	return 0;
 }
 
 const char* SAMP::CPlayerPool::GetName(ID nId) {
-	return ((const char* (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x16F00))(this, nId);
+	if (this == nullptr || nId >= MAX_PLAYERS) return nullptr;
+	__try {
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+			return ((const char* (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x16F00))(this, nId);
+		}
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+			return ((const char* (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x13CE0))(this, nId);
+		}
+
+		// Direct memory resolution for DL, R5 and fallbacks
+		const WORD localId = *reinterpret_cast<const WORD*>(reinterpret_cast<const BYTE*>(this) + 0x2F1C);
+		if (nId == localId) {
+			const DWORD cap = *reinterpret_cast<const DWORD*>(reinterpret_cast<const BYTE*>(this) + 0x2F36);
+			if (cap >= 16) {
+				const char* const* pStr = reinterpret_cast<const char* const*>(reinterpret_cast<const BYTE*>(this) + 0x2F22);
+				if (pStr && *pStr) return *pStr;
+			}
+			return reinterpret_cast<const char*>(reinterpret_cast<const BYTE*>(this) + 0x2F22);
+		}
+
+		if (this->m_pObject[nId] != nullptr) {
+			const BYTE* pInfo = reinterpret_cast<const BYTE*>(this->m_pObject[nId]);
+			const DWORD cap = *reinterpret_cast<const DWORD*>(pInfo + 0x20);
+			if (cap >= 16) {
+				const char* const* pStr = reinterpret_cast<const char* const*>(pInfo + 0x0C);
+				if (pStr && *pStr) return *pStr;
+			}
+			return reinterpret_cast<const char*>(pInfo + 0x0C);
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
+	return nullptr;
 }
 
 int SAMP::CPlayerPool::GetLocalPlayerPing() {
-	return ((int(__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x6E150))(this);
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		return ((int(__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x6E150))(this);
+	}
+	return this->m_localInfo.m_nPing;
 }
 
 int SAMP::CPlayerPool::GetLocalPlayerScore() {
-	return ((int(__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x6E140))(this);
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		return ((int(__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x6E140))(this);
+	}
+	return this->m_localInfo.m_nScore;
 }
 
 int SAMP::CPlayerPool::GetCount(BOOL bIncludeNPC) {
-	return ((int(__thiscall*)(CPlayerPool*, BOOL))SAMP_ADDROF(0x13670))(this, bIncludeNPC);
+	if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+		return ((int(__thiscall*)(CPlayerPool*, BOOL))SAMP_ADDROF(0x13670))(this, bIncludeNPC);
+	}
+	int count = 0;
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		if (this->m_bNotEmpty[i]) count++;
+	}
+	return count;
 }
 
 SAMP::CLocalPlayer* SAMP::CPlayerPool::GetLocalPlayer() {
-	return ((CLocalPlayer * (__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x1A30))(this);
+	if (this == nullptr) return nullptr;
+	__try {
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R3) {
+			return ((CLocalPlayer * (__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x1A30))(this);
+		}
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1) {
+			return ((CLocalPlayer * (__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x1A30))(this);
+		}
+		return this->m_localInfo.m_pObject;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
 }
 
 SAMP::CObjectSA* SAMP::CPlayerPool::FindAccessory(::CObject* pGameObject) {

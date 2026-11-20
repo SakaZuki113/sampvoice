@@ -175,95 +175,96 @@ void SpeakerList::Render()
         {
             if (curTextLine >= kBaseLinesCount) break;
 
-            if (const auto playerName = pPlayerPool->GetName(playerId); playerName != nullptr)
+            if (SpeakerList::playerStreams[playerId].empty())
+                continue;
+
+            const auto rawPlayerName = pPlayerPool->GetName(playerId);
+            const char* const playerName = (rawPlayerName != nullptr && rawPlayerName[0] != '\0') ?
+                rawPlayerName : "Player";
+
+            for (const auto& playerStream : SpeakerList::playerStreams[playerId])
             {
-                if (!SpeakerList::playerStreams[playerId].empty())
+                if (playerStream.second.GetType() == StreamType::LocalStreamAtPlayer)
                 {
-                    for (const auto& playerStream : SpeakerList::playerStreams[playerId])
+                    if (GameUtil::IsPlayerVisible(playerId))
                     {
-                        if (playerStream.second.GetType() == StreamType::LocalStreamAtPlayer)
+                        if (const auto pPlayer = pPlayerPool->GetPlayer(playerId); pPlayer != nullptr)
                         {
-                            if (GameUtil::IsPlayerVisible(playerId))
+                            if (const auto pPlayerPed = pPlayer->m_pPed; pPlayerPed != nullptr)
                             {
-                                if (const auto pPlayer = pPlayerPool->GetPlayer(playerId); pPlayer != nullptr)
+                                if (const auto pGamePed = pPlayerPed->m_pGamePed; pGamePed != nullptr)
                                 {
-                                    if (const auto pPlayerPed = pPlayer->m_pPed; pPlayerPed != nullptr)
+                                    const float distanceToCamera = (TheCamera.GetPosition() - pGamePed->GetPosition()).Magnitude();
+
+                                    float vSpeakerIconSize { 0.f };
+
+                                    if (Render::ConvertBaseYValueToScreenYValue(kBaseIconSize, vSpeakerIconSize))
                                     {
-                                        if (const auto pGamePed = pPlayerPed->m_pGamePed; pGamePed != nullptr)
+                                        vSpeakerIconSize *= PluginConfig::GetSpeakerIconScale();
+                                        vSpeakerIconSize *= 5.f / distanceToCamera;
+
+                                        float width, height;
+                                        RwV3d playerPos, screenPos;
+
+                                        pGamePed->GetBonePosition(playerPos, 1, false);
+                                        playerPos.z += 1.f;
+
+                                        if (CSprite::CalcScreenCoors(playerPos, &screenPos, &width, &height, true, true))
                                         {
-                                            const float distanceToCamera = (TheCamera.GetPosition() - pGamePed->GetPosition()).Magnitude();
+                                            screenPos.x -= vSpeakerIconSize / 2.f;
+                                            screenPos.y -= vSpeakerIconSize / 2.f;
 
-                                            float vSpeakerIconSize { 0.f };
+                                            const float addX = PluginConfig::GetSpeakerIconOffsetX() * 5.f / distanceToCamera;
+                                            const float addY = PluginConfig::GetSpeakerIconOffsetY() * 5.f / distanceToCamera;
 
-                                            if (Render::ConvertBaseYValueToScreenYValue(kBaseIconSize, vSpeakerIconSize))
-                                            {
-                                                vSpeakerIconSize *= PluginConfig::GetSpeakerIconScale();
-                                                vSpeakerIconSize *= 5.f / distanceToCamera;
-
-                                                float width, height;
-                                                RwV3d playerPos, screenPos;
-
-                                                pGamePed->GetBonePosition(playerPos, 1, false);
-                                                playerPos.z += 1.f;
-
-                                                if (CSprite::CalcScreenCoors(playerPos, &screenPos, &width, &height, true, true))
-                                                {
-                                                    screenPos.x -= vSpeakerIconSize / 2.f;
-                                                    screenPos.y -= vSpeakerIconSize / 2.f;
-
-                                                    const float addX = PluginConfig::GetSpeakerIconOffsetX() * 5.f / distanceToCamera;
-                                                    const float addY = PluginConfig::GetSpeakerIconOffsetY() * 5.f / distanceToCamera;
-
-                                                    SpeakerList::tSpeakerIcon->Draw(screenPos.x + addX, screenPos.y + addY,
-                                                        vSpeakerIconSize, vSpeakerIconSize, -1, 0.f);
-                                                }
-                                            }
+                                            SpeakerList::tSpeakerIcon->Draw(screenPos.x + addX, screenPos.y + addY,
+                                                vSpeakerIconSize, vSpeakerIconSize, -1, 0.f);
                                         }
                                     }
                                 }
                             }
-
-                            break;
                         }
                     }
 
-                    ImGui::PushID(playerId);
-
-                    const auto alphaLevel = static_cast<DWORD>((1.f - static_cast<float>(curTextLine) /
-                        static_cast<float>(kBaseLinesCount)) * 255.f) << 24;
-
-                    const auto color = ImGui::ColorConvertU32ToFloat4(0x00ffffff | alphaLevel);
-
-                    ImGui::Image(SpeakerList::tSpeakerIcon->GetTexture(), { ImGui::GetTextLineHeight(),
-                        ImGui::GetTextLineHeight() }, { 0, 0 }, { 1, 1 }, color);
-
-                    ImGui::NextColumn();
-
-                    ImGui::TextColored(color, "%s (%hu)", playerName, playerId);
-
-                    ImGui::NextColumn();
-
-                    for (const auto& streamInfo : SpeakerList::playerStreams[playerId])
-                    {
-                        if (streamInfo.second.GetColor() == NULL)
-                            continue;
-
-                        ImGui::PushID(&streamInfo);
-
-                        const auto streamColor = ImGui::ColorConvertU32ToFloat4((streamInfo.second.GetColor() & 0x00ffffff) | alphaLevel);
-
-                        ImGui::TextColored(streamColor, "[%s]", streamInfo.second.GetName().c_str());
-
-                        ImGui::SameLine();
-                        ImGui::PopID();
-                    }
-
-                    ImGui::NextColumn();
-                    ImGui::PopID();
-
-                    ++curTextLine;
+                    break;
                 }
             }
+
+            ImGui::PushID(playerId);
+
+            const auto alphaLevel = static_cast<DWORD>((1.f - static_cast<float>(curTextLine) /
+                static_cast<float>(kBaseLinesCount)) * 255.f) << 24;
+
+            const auto color = ImGui::ColorConvertU32ToFloat4(0x00ffffff | alphaLevel);
+
+            ImGui::Image(SpeakerList::tSpeakerIcon->GetTexture(), { ImGui::GetTextLineHeight(),
+                ImGui::GetTextLineHeight() }, { 0, 0 }, { 1, 1 }, color);
+
+            ImGui::NextColumn();
+
+            ImGui::TextColored(color, "%s (%hu)", playerName, playerId);
+
+            ImGui::NextColumn();
+
+            for (const auto& streamInfo : SpeakerList::playerStreams[playerId])
+            {
+                if (streamInfo.second.GetColor() == NULL)
+                    continue;
+
+                ImGui::PushID(&streamInfo);
+
+                const auto streamColor = ImGui::ColorConvertU32ToFloat4((streamInfo.second.GetColor() & 0x00ffffff) | alphaLevel);
+
+                ImGui::TextColored(streamColor, "[%s]", streamInfo.second.GetName().c_str());
+
+                ImGui::SameLine();
+                ImGui::PopID();
+            }
+
+            ImGui::NextColumn();
+            ImGui::PopID();
+
+            ++curTextLine;
         }
 
         ImGui::End();

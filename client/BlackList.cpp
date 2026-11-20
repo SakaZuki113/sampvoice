@@ -43,6 +43,9 @@ bool BlackList::Load(const std::string& filePath)
                 {
                     for (WORD iPlayerId { 0 }; iPlayerId < MAX_PLAYERS; ++iPlayerId)
                     {
+                        if (!pPlayerPool->IsConnected(iPlayerId))
+                            continue;
+
                         if (const auto playerName = pPlayerPool->GetName(iPlayerId); playerName != nullptr)
                         {
                             if (nickName == playerName)
