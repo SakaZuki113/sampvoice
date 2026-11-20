@@ -74,7 +74,7 @@ bool GameUtil::IsPlayerVisible(const WORD playerId) noexcept
     const auto pPlayer = pPlayerPool->GetPlayer(playerId);
     if (!pPlayer) return false;
 
-    const auto pPlayerPed = pPlayer->m_pPed;
+    const auto pPlayerPed = pPlayer->GetPed();
     if (!pPlayerPed) return false;
 
     const auto pPlayerGamePed = pPlayerPed->m_pGamePed;

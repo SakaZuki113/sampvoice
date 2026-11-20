@@ -393,10 +393,14 @@ void SAMP::CNetGame::ProcessGameStuff() {
 SAMP::CPlayerPool* SAMP::CNetGame::GetPlayerPool() {
 	if (this == nullptr) return nullptr;
 	__try {
-		if (this->m_pPools == nullptr) return nullptr;
+		BYTE* pNetGameBytes = reinterpret_cast<BYTE*>(this);
+		BYTE* pPools = (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1)
+			? *reinterpret_cast<BYTE**>(pNetGameBytes + 0x3CD)
+			: *reinterpret_cast<BYTE**>(pNetGameBytes + 0x3DE);
+		if (pPools == nullptr) return nullptr;
 		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
-			return *reinterpret_cast<CPlayerPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 4);
-		return this->m_pPools->m_pPlayer;
+			return *reinterpret_cast<CPlayerPool**>(pPools + 0x04);
+		return *reinterpret_cast<CPlayerPool**>(pPools + 0x08);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return nullptr;
 	}
@@ -405,10 +409,14 @@ SAMP::CPlayerPool* SAMP::CNetGame::GetPlayerPool() {
 SAMP::CObjectPool* SAMP::CNetGame::GetObjectPool() {
 	if (this == nullptr) return nullptr;
 	__try {
-		if (this->m_pPools == nullptr) return nullptr;
+		BYTE* pNetGameBytes = reinterpret_cast<BYTE*>(this);
+		BYTE* pPools = (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1)
+			? *reinterpret_cast<BYTE**>(pNetGameBytes + 0x3CD)
+			: *reinterpret_cast<BYTE**>(pNetGameBytes + 0x3DE);
+		if (pPools == nullptr) return nullptr;
 		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
-			return *reinterpret_cast<CObjectPool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 12);
-		return this->m_pPools->m_pObject;
+			return *reinterpret_cast<CObjectPool**>(pPools + 0x0C);
+		return *reinterpret_cast<CObjectPool**>(pPools + 0x14);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return nullptr;
 	}
@@ -429,10 +437,14 @@ BOOL SAMP::CNetGame::LanMode() {
 SAMP::CVehiclePool* SAMP::CNetGame::GetVehiclePool() {
 	if (this == nullptr) return nullptr;
 	__try {
-		if (this->m_pPools == nullptr) return nullptr;
+		BYTE* pNetGameBytes = reinterpret_cast<BYTE*>(this);
+		BYTE* pPools = (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R1)
+			? *reinterpret_cast<BYTE**>(pNetGameBytes + 0x3CD)
+			: *reinterpret_cast<BYTE**>(pNetGameBytes + 0x3DE);
+		if (pPools == nullptr) return nullptr;
 		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::R5)
-			return *reinterpret_cast<CVehiclePool**>(reinterpret_cast<BYTE*>(this->m_pPools) + 0);
-		return this->m_pPools->m_pVehicle;
+			return *reinterpret_cast<CVehiclePool**>(pPools + 0x00);
+		return *reinterpret_cast<CVehiclePool**>(pPools + 0x0C);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return nullptr;
 	}

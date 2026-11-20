@@ -190,7 +190,7 @@ void SpeakerList::Render()
                     {
                         if (const auto pPlayer = pPlayerPool->GetPlayer(playerId); pPlayer != nullptr)
                         {
-                            if (const auto pPlayerPed = pPlayer->m_pPed; pPlayerPed != nullptr)
+                            if (const auto pPlayerPed = pPlayer->GetPed(); pPlayerPed != nullptr)
                             {
                                 if (const auto pGamePed = pPlayerPed->m_pGamePed; pGamePed != nullptr)
                                 {

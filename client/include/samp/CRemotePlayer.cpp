@@ -8,6 +8,7 @@
 */
 
 #include "CRemotePlayer.h"
+#include <util/AddressesBase.h>
 
 #if defined(SAMP_R1)
 
@@ -175,6 +176,17 @@ void SAMP::CRemotePlayer::UpdateTrain(CMatrixSA* pMatrix, CVectorSA* pSpeed, flo
 	((void(__thiscall*)(CRemotePlayer*, CMatrixSA*, CVectorSA*, float))SAMP_ADDROF(0x11F80))(this, pMatrix, pSpeed, fSpeed);
 }
 
+SAMP::CPedSA* SAMP::CRemotePlayer::GetPed() {
+	if (this == nullptr) return nullptr;
+	__try {
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::DL)
+			return *reinterpret_cast<CPedSA**>(reinterpret_cast<BYTE*>(this) + 4);
+		return this->m_pPed;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
+}
+
 #elif defined(SAMP_R3)
 
 SAMP::CRemotePlayer::CRemotePlayer() {
@@ -339,6 +351,17 @@ void SAMP::CRemotePlayer::Chat(const char* szText) {
 
 BOOL SAMP::CRemotePlayer::DoesExist() {
 	return ((BOOL(__thiscall*)(CRemotePlayer*))SAMP_ADDROF(0x1080))(this);
+}
+
+SAMP::CPedSA* SAMP::CRemotePlayer::GetPed() {
+	if (this == nullptr) return nullptr;
+	__try {
+		if (AddressesBase::GetGlobalVersion() == AddressesBase::SampVersion::DL)
+			return *reinterpret_cast<CPedSA**>(reinterpret_cast<BYTE*>(this) + 4);
+		return this->m_pPed;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
 }
 
 #endif

@@ -3,6 +3,7 @@
 #include <audio/bass.h>
 #include <samp/CNetGame.h>
 #include <game/CPed.h>
+#include <game/CCamera.h>
 
 #include "StreamInfo.h"
 
@@ -25,7 +26,7 @@ void StreamAtPlayer::Tick() noexcept
     const auto pPlayer = pPlayerPool->GetPlayer(this->playerId);
     if (!pPlayer) return;
 
-    const auto pPlayerPed = pPlayer->m_pPed;
+    const auto pPlayerPed = pPlayer->GetPed();
     if (!pPlayerPed) return;
 
     const auto pPlayerGamePed = pPlayerPed->m_pGamePed;
@@ -51,25 +52,42 @@ void StreamAtPlayer::OnChannelCreate(const Channel& channel) noexcept
 
     this->LocalStream::OnChannelCreate(channel);
 
+    BASS_3DVECTOR initPos { 0, 0, 0 };
+    bool posFound = false;
+
     const auto pNetGame = SAMP::pNetGame();
-    if (!pNetGame) return;
+    if (pNetGame)
+    {
+        const auto pPlayerPool = pNetGame->GetPlayerPool();
+        if (pPlayerPool)
+        {
+            const auto pPlayer = pPlayerPool->GetPlayer(this->playerId);
+            if (pPlayer)
+            {
+                const auto pPlayerPed = pPlayer->GetPed();
+                if (pPlayerPed)
+                {
+                    const auto pPlayerGamePed = pPlayerPed->m_pGamePed;
+                    if (pPlayerGamePed)
+                    {
+                        const auto pPlayerMatrix = pPlayerGamePed->GetMatrix();
+                        if (pPlayerMatrix)
+                        {
+                            initPos = *reinterpret_cast<BASS_3DVECTOR*>(&pPlayerMatrix->pos);
+                            posFound = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-    const auto pPlayerPool = pNetGame->GetPlayerPool();
-    if (!pPlayerPool) return;
-
-    const auto pPlayer = pPlayerPool->GetPlayer(this->playerId);
-    if (!pPlayer) return;
-
-    const auto pPlayerPed = pPlayer->m_pPed;
-    if (!pPlayerPed) return;
-
-    const auto pPlayerGamePed = pPlayerPed->m_pGamePed;
-    if (!pPlayerGamePed) return;
-
-    const auto pPlayerMatrix = pPlayerGamePed->GetMatrix();
-    if (!pPlayerMatrix) return;
+    if (!posFound)
+    {
+        initPos = *reinterpret_cast<const BASS_3DVECTOR*>(&TheCamera.GetPosition());
+    }
 
     BASS_ChannelSet3DPosition(channel.GetHandle(),
-        reinterpret_cast<BASS_3DVECTOR*>(&pPlayerMatrix->pos),
+        &initPos,
         &kZeroVector, &kZeroVector);
 }

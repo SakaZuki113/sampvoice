@@ -153,6 +153,7 @@ public:
 	void Kill();
 	void Chat(const char* szText);
 	BOOL DoesExist();
+	CPedSA* GetPed();
 
 };
 
@@ -296,6 +297,7 @@ public:
 	void Kill();
 	void Chat(const char* szText);
 	BOOL DoesExist();
+	CPedSA* GetPed();
 
 };
 
