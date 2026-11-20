@@ -84,25 +84,20 @@ jobs:
       - name: Package files
         run: |
           mkdir -p dist
-          cp release-files/win/sampvoice.dll dist/sampvoice.dll
-          cp release-files/linux/sampvoice.so dist/sampvoice.so
+          find release-files -name "sampvoice.dll" -exec cp {} dist/sampvoice.dll \;
+          find release-files -name "sampvoice.so" -exec cp {} dist/sampvoice.so \;
           cd dist && zip -r ../sampvoice-server-binaries.zip . && cd ..
 
           mkdir -p client-dist
-          cp -r release-files/win/* client-dist/
-          rm -f client-dist/sampvoice.dll
-          cp release-files/win/bass.dll "client-dist/bass.dll [0.3DL-R1]"
-          cp release-files/win/bass.dll "client-dist/bass.dll [0.3.7-R1]"
-          cp release-files/win/bass.dll "client-dist/bass.dll [0.3.7-R3]"
-          cp release-files/win/bass.dll "client-dist/bass.dll [0.3.7-R5]"
-          cp release-files/win/bass.dll "client-dist/bass.dll [open.mp]"
+          if [ -d "release-files/win/client/Release" ]; then
+            cp -r release-files/win/client/Release/* client-dist/
+          else
+            cp -r release-files/win/* client-dist/
+            rm -f client-dist/sampvoice.dll
+          fi
           cd client-dist && zip -r ../sampvoice-client.zip . && cd ..
 
-          cp release-files/win/bass.dll "bass.dll [0.3DL-R1]"
-          cp release-files/win/bass.dll "bass.dll [0.3.7-R1]"
-          cp release-files/win/bass.dll "bass.dll [0.3.7-R3]"
-          cp release-files/win/bass.dll "bass.dll [0.3.7-R5]"
-          cp release-files/win/bass.dll "bass.dll [open.mp]"
+          find client-dist -name "bass.dll*" -exec cp {} . \;
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
