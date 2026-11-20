@@ -1,193 +1,425 @@
-# **SAMPVOICE** [Original repository](https://github.com/CyberMor/sampvoice)
-English | [Русский](https://github.com/AmyrAhmady/sampvoice/blob/master/README.ru.md)
+# SAMPVOICE (Multi-Version Edition)
+
+[![Build](https://github.com/SakaZuki113/sampvoice/actions/workflows/build.yml/badge.svg)](https://github.com/SakaZuki113/sampvoice/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/SakaZuki113/sampvoice?label=Release)](https://github.com/SakaZuki113/sampvoice/releases)
+
+Language: [English](#english) | [Bahasa Indonesia](#bahasa-indonesia)
+
+---
+
+### Credits & Acknowledgments
+* **Original Creator**: [CyberMor](https://github.com/CyberMor) ([CyberMor/sampvoice](https://github.com/CyberMor/sampvoice))
+* **open.mp Reference & Port**: [AmyrAhmady (iAmir)](https://github.com/AmyrAhmady) ([AmyrAhmady/sampvoice](https://github.com/AmyrAhmady/sampvoice))
+* **Multi-Version SA:MP & open.mp Fork**: [SakaZuki113](https://github.com/SakaZuki113) ([SakaZuki113/sampvoice](https://github.com/SakaZuki113/sampvoice))
+
+---
+
+<a name="english"></a>
+# English
 
 ## Description
----------------------------------
-**SAMPVOICE** - is a Software Development Kit (SDK) for implementing voice communication systems in the Pawn language for open.mp servers.
+**SAMPVOICE** is a powerful Software Development Kit (SDK) designed for implementing high-performance, low-latency 3D positional voice communication in Pawn for **open.mp** and **SA-MP** servers.
 
-#### Version support
-----------------------------------
-* Client: SA:MP 0.3.7 (R1, R3)
-* Server: Latest open.mp version
+This enhanced **Multi-Version Edition** introduces comprehensive multi-version compatibility, preventing client-side crashes across different SA-MP versions and providing an improved, distraction-free HUD experience.
 
-## Features
----------------------------------
-* Controlled voice transmission
-* Player microphone control
-* Binding a voice stream to game objects
-* And many more features...
+### Version Support
+* **Client**: All SA:MP versions — **0.3.7 (R1, R3, R5)**, **0.3.DL-R1**, and **open.mp**.
+* **Server**: Latest **open.mp** version (as well as legacy SA-MP 0.3.7 and 0.3.DL server binaries).
+
+---
+
+## Key Features
+* **Universal Multi-Version Compatibility**: Automatically detects and adjusts internal SA-MP player pool and remote ped offsets across 0.3.7-R1, 0.3.7-R3, 0.3.7-R5, and 0.3.DL-R1 without crashes.
+* **Realistic 3D Positional Audio**: Realistic sound attenuation based on distance and camera orientation with BASS 3D audio engine.
+* **Instant HUD Feedback**:
+  * **Radar Mic Indicator**: Micro-icon above the minimap remains hidden when idle, lights up while speaking, and disappears **instantly** upon key release.
+  * **Head Speaker Icon**: 3D speaker icon displays smoothly above the talking player's character in-game.
+* **Multiple Voice Modes**: Supports dynamic range adjustments (e.g. Whisper, Normal, Shout).
+* **Controlled Traffic & Low Latency**: Audio streams compressed with Opus codec for minimal bandwidth overhead.
+
+---
 
 ## Installation
----------------------------------
-For the plugin to work, it must be installed by the players and on the server. There is a client and server part of the plugin for this.
 
-#### For players
----------------------------------
-Players have access to 2 installation options: automatic (via the installer) and manual (via the archive).
+### For Players (Client)
+1. Download `sampvoice-client.zip` from the [Releases page](https://github.com/SakaZuki113/sampvoice/releases).
+2. Extract the contents directly into your **GTA San Andreas** root directory (where `gta_sa.exe` and `samp.dll` are located):
+   * `sampvoice.asi`
+   * `bass.dll`
+   * `sampvoice/` folder (containing textures/icons and audio libraries)
 
-##### Automatically
----------------------------------
-1. In order to download the installer, head over to [the `releases` page](https://github.com/AmyrAhmady/sampvoice/releases) and choose the desired version of the plugin.
-2. After downloading, launch the installer and choose the desired language for your installation, afterwards the installer will automatically find your GTA San Andreas folder.
-3. If the directory is correct, click "OK" and wait for the installation to complete. After the installation is complete, the installer will exit.
+### For Developers (Server)
+1. Download `sampvoice-server-binaries.zip` from the [Releases page](https://github.com/SakaZuki113/sampvoice/releases).
+2. Extract the plugin file into your server's `plugins/` folder:
+   * **Windows**: `sampvoice.dll`
+   * **Linux**: `sampvoice.so`
+3. Add `sampvoice` to your server configuration:
+   * **open.mp (`config.json`)**: Add `"sampvoice"` to the `pawn.legacy_plugins` array.
+   * **SA-MP (`server.cfg`)**: Add `plugins sampvoice` (Windows) or `plugins sampvoice.so` (Linux).
+   *(Note: If using `Pawn.RakNet`, load `sampvoice` after it).*
+4. Place `sampvoice.inc` in your `qawno/include` (open.mp) or `pawno/include` (SA-MP) directory.
 
-##### Manually
----------------------------------
-1. Head over [the `releases` page](https://github.com/AmyrAhmady/sampvoice/releases) and download the archive with the desired client version.
-2. Extract the archive to your GTA San Andreas folder.
+---
 
-#### For developers
----------------------------------
-1. Download from [the `releases` page](https://github.com/AmyrAhmady/sampvoice/releases) the desired version of the plugin for your platform.
-2. Unpack the archive to the root directory of the server.
-3. Add to the *server.cfg* server configuration file the line *"plugins sampvoice"* for *Win32* and *"plugins sampvoice.so"* for *Linux x86*. **(If you have a Pawn.RakNet plugin be sure to place SampVoice after it)**
+## Usage & Implementation Example
 
-## Usage
----------------------------------
-To get started using the plugin, read the documentation that comes with the server side. To do this, open the *sampvoice.chm* file using the Windows reference. **(If the documentation does not open, right-click on the documentation file, then Properties -> Unblock -> OK)**
-
-To start using the plugin functionality, include the header file:
-```php
+Include the library in your script:
+```pawn
 #include <sampvoice>
 ```
 
-#### Quick reference
----------------------------------
-You need to know that the plugin uses its own type and constant system. Despite the fact that this is just a wrapper over the basic types of Pawn, it helps to navigate the types of the plugin itself and not to confuse pointers.
+### Complete Modern Proximity Voice Implementation
+Below is a clean, production-ready example featuring Push-To-Talk ('B' key) and dynamic distance mode switching ('Z' key: Whisper 4m, Normal 15m, Shout 45m):
 
-In order to redirect audio traffic from player A to player B, you need to create an audio stream (for example, a global one, using **SvCreateGStream**), then attach it to the stream of player A as a speaker (using **SvAttachSpeakerToStream**), after which attach to player B's stream as a listener (using **SvAttachListenerToStream**). Done. Now, when player A's microphone is activated (for example, with the **SvStartRecord** function), his audio traffic will be transmitted and then heard by player B.
-
-Sound streams are pretty handy. They can be visualized using the example of Discord:
-* A stream is an analogue of a room (or channel).
-* Speakers are participants in the room with mute but microphone on.
-* Listeners are participants in the room with their microphone mute but mute.
-
-Players can be both speakers and listeners at the same time. In this case, the player's audio traffic will not be forwarded to him.
-
-#### Example
----------------------------------
-Let's take a look at some of the plugin's features with a practical example. Below we will create a server that will bind all connected players to the global stream, and also create a local stream for each player. Thus, players will be able to communicate through the global (heard equally at any point on the map) and local (heard only near the player) chats.
-```cpp
+```pawn
+#include <open.mp> // or <a_samp>
 #include <sampvoice>
 
-new SV_GSTREAM:gstream = SV_NULL;
-new SV_LSTREAM:lstream[MAX_PLAYERS] = { SV_NULL, ... };
+#define VOICE_KEY_TALK      (0x42) // Key 'B' (Push-To-Talk)
+#define VOICE_KEY_MODE      (0x5A) // Key 'Z' (Cycle Distance Mode)
 
-/*
-    The public OnPlayerActivationKeyPress and OnPlayerActivationKeyRelease
-    are needed in order to redirect the player's audio traffic to the
-    corresponding streams when the corresponding keys are pressed.
-*/
+#define VOICE_DIST_WHISPER  (4.0)  // Whisper: 4 meters
+#define VOICE_DIST_NORMAL   (15.0) // Normal: 15 meters
+#define VOICE_DIST_SHOUT    (45.0) // Shout: 45 meters
 
-public SV_VOID:OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid) 
-{
-    // Attach player to local stream as speaker if 'B' key is pressed
-    if (keyid == 0x42 && lstream[playerid]) SvAttachSpeakerToStream(lstream[playerid], playerid);
-    // Attach the player to the global stream as a speaker if the 'Z' key is pressed
-    if (keyid == 0x5A && gstream) SvAttachSpeakerToStream(gstream, playerid);
-}
-
-public SV_VOID:OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid)
-{
-    // Detach the player from the local stream if the 'B' key is released
-    if (keyid == 0x42 && lstream[playerid]) SvDetachSpeakerFromStream(lstream[playerid], playerid);
-    // Detach the player from the global stream if the 'Z' key is released
-    if (keyid == 0x5A && gstream) SvDetachSpeakerFromStream(gstream, playerid);
-}
-
-public OnPlayerConnect(playerid)
-{
-    // Checking for plugin availability
-    if (SvGetVersion(playerid) == SV_NULL)
-    {
-        SendClientMessage(playerid, -1, "Could not find plugin sampvoice.");
-    }
-    // Checking for a microphone
-    else if (SvHasMicro(playerid) == SV_FALSE)
-    {
-        SendClientMessage(playerid, -1, "The microphone could not be found.");
-    }
-    // Create a local stream with an audibility distance of 40.0, an unlimited number of listeners
-    // and the name 'Local' (the name 'Local' will be displayed in red in the players' speakerlist)
-    else if ((lstream[playerid] = SvCreateDLStreamAtPlayer(40.0, SV_INFINITY, playerid, 0xff0000ff, "Local")))
-    {
-        SendClientMessage(playerid, -1, "Press Z to talk to global chat and B to talk to local chat.");
-
-        // Attach the player to the global stream as a listener
-        if (gstream) SvAttachListenerToStream(gstream, playerid);
-
-        // Assign microphone activation keys to the player
-        SvAddKey(playerid, 0x42);
-        SvAddKey(playerid, 0x5A);
-    }
-}
-
-public OnPlayerDisconnect(playerid, reason)
-{
-    // Removing the player's local stream after disconnecting
-    if (lstream[playerid])
-    {
-        SvDetachListenerFromStream(lstream[playerid], playerid);
-        SvDetachSpeakerFromStream(lstream[playerid], playerid);
-        SvDeleteStream(lstream[playerid]);
-        lstream[playerid] = SV_NULL;
-    }
-}
+static SV_DLSTREAM:g_PlayerVoiceStream[MAX_PLAYERS] = {SV_NULL, ...};
+static g_PlayerVoiceMode[MAX_PLAYERS] = {1, ...}; // Default: 1 (Normal)
 
 public OnGameModeInit()
 {
-    // Uncomment the line to enable debug mode
-    // SvDebug(SV_TRUE);
-
-    gstream = SvCreateGStream(0xffff0000, "Global");
+    // Initialize SampVoice with 40 kbps bitrate
+    SvInit(40000);
+    print("[SAMPVOICE] Voice system initialized.");
+    return 1;
 }
 
 public OnGameModeExit()
 {
-    if (gstream)
+    for (new i = 0; i < MAX_PLAYERS; i++)
     {
-        for (new i = 0; i < MAX_PLAYERS; i ++)
+        if (g_PlayerVoiceStream[i] != SV_NULL)
         {
-            if (!IsPlayerConnected(i)) continue;
-            SvDetachListenerFromStream(gstream, i);
-            SvDetachSpeakerFromStream(gstream, i);
+            SvDeleteStream(g_PlayerVoiceStream[i]);
+            g_PlayerVoiceStream[i] = SV_NULL;
         }
-        SvDeleteStream(gstream);
     }
+    return 1;
+}
+
+forward Voice_SetupPlayer(playerid);
+public Voice_SetupPlayer(playerid)
+{
+    if (!IsPlayerConnected(playerid) || g_PlayerVoiceStream[playerid] != SV_NULL)
+        return 0;
+
+    // Check if player has SampVoice client installed
+    if (SvGetVersion(playerid) == 0)
+    {
+        SendClientMessage(playerid, 0xFF6600FF, "[VOICE] SampVoice client plugin not detected.");
+        return 0;
+    }
+
+    // Create 3D dynamic local stream attached to player
+    g_PlayerVoiceStream[playerid] = SvCreateDLStreamAtPlayer(VOICE_DIST_NORMAL, MAX_PLAYERS, playerid, 0x00FFBFFF, "Proximity Voice");
+    if (g_PlayerVoiceStream[playerid] != SV_NULL)
+    {
+        SvAttachSpeakerToStream(g_PlayerVoiceStream[playerid], playerid);
+    }
+
+    // Register Push-To-Talk key ('B') and Mode Switch key ('Z')
+    SvAddKey(playerid, VOICE_KEY_TALK, SV_TRUE);
+    SvAddKey(playerid, VOICE_KEY_MODE, SV_FALSE);
+
+    SendClientMessage(playerid, 0x00FF00FF, "[VOICE] Hold 'B' to talk. Press 'Z' to cycle distance (Whisper / Normal / Shout).");
+    return 1;
+}
+
+public OnPlayerSpawn(playerid)
+{
+    if (g_PlayerVoiceStream[playerid] == SV_NULL)
+    {
+        // Delay slightly after connect/spawn to allow handshake packet
+        SetTimerEx("Voice_SetupPlayer", 1000, false, "i", playerid);
+    }
+    return 1;
+}
+
+public OnPlayerDisconnect(playerid, reason)
+{
+    if (g_PlayerVoiceStream[playerid] != SV_NULL)
+    {
+        SvDeleteStream(g_PlayerVoiceStream[playerid]);
+        g_PlayerVoiceStream[playerid] = SV_NULL;
+    }
+    g_PlayerVoiceMode[playerid] = 1;
+    return 1;
+}
+
+// Key Press Callback
+public OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
+{
+    if (keyid == VOICE_KEY_TALK)
+    {
+        SvStartRecord(playerid);
+    }
+    else if (keyid == VOICE_KEY_MODE)
+    {
+        // Cycle mode: Whisper (0) -> Normal (1) -> Shout (2)
+        g_PlayerVoiceMode[playerid] = (g_PlayerVoiceMode[playerid] + 1) % 3;
+        new Float:dist = VOICE_DIST_NORMAL;
+
+        switch (g_PlayerVoiceMode[playerid])
+        {
+            case 0:
+            {
+                dist = VOICE_DIST_WHISPER;
+                SendClientMessage(playerid, 0xFFFF00FF, "[VOICE] Distance Mode: Whisper (4m)");
+            }
+            case 1:
+            {
+                dist = VOICE_DIST_NORMAL;
+                SendClientMessage(playerid, 0x00FF00FF, "[VOICE] Distance Mode: Normal (15m)");
+            }
+            case 2:
+            {
+                dist = VOICE_DIST_SHOUT;
+                SendClientMessage(playerid, 0xFF0000FF, "[VOICE] Distance Mode: Shout (45m)");
+            }
+        }
+
+        if (g_PlayerVoiceStream[playerid] != SV_NULL)
+        {
+            SvUpdateDistanceForLStream(g_PlayerVoiceStream[playerid], dist);
+        }
+    }
+    return 1;
+}
+
+// Key Release Callback
+public OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid)
+{
+    if (keyid == VOICE_KEY_TALK)
+    {
+        SvStopRecord(playerid);
+    }
+    return 1;
 }
 ```
 
-## Compiling
----------------------------------
-Plugin compiles for *Win32* and *Linux x86* platforms.
+---
 
-Below are further instructions:
+<a name="bahasa-indonesia"></a>
+# Bahasa Indonesia
 
-Clone the repository to your computer and go to the plugin directory:
+## Deskripsi
+**SAMPVOICE** adalah Software Development Kit (SDK) mutakhir yang dirancang untuk mengimplementasikan sistem komunikasi suara (Voice Chat) 3D berkinerja tinggi, berlatensi rendah, serta berorientasi spasial menggunakan bahasa Pawn pada server **open.mp** dan **SA-MP**.
+
+Edisi **Multi-Version** ini menghadirkan perbaikan menyeluruh pada kompatibilitas lintas versi SA-MP sehingga tidak lagi terjadi force close (crash) saat pemain saling bertemu atau spawn, serta dilengkapi pembaruan indikator HUD yang bersih dan responsif.
+
+### Dukungan Versi
+* **Client**: Seluruh versi SA:MP — **0.3.7 (R1, R3, R5)**, **0.3.DL-R1**, dan **open.mp**.
+* **Server**: Versi **open.mp** terbaru (serta binary server SA-MP 0.3.7 dan 0.3.DL).
+
+---
+
+## Fitur Utama
+* **Kompatibilitas Multi-Version Universal**: Mendeteksi versi SA-MP client secara otomatis dan menyesuaikan offset internal pool pemain serta remote ped tanpa mengalami crash antara 0.3.7 dan 0.3.DL.
+* **Audio Spasial 3D Realistis**: Atenuasi volume dinamis berdasarkan jarak dan sudut pandang kamera pemain menggunakan BASS Audio Engine.
+* **Indikator HUD Responsif & Bersih**:
+  * **Ikon Mic Radar**: Ikon mic di atas radar minimap tidak muncul saat diam/pasif, langsung menyala ketika berbicara, dan **seketika menghilang** saat tombol bicara dilepas tanpa jeda/fading lambat.
+  * **Ikon Speaker 3D**: Ikon speaker di atas kepala karakter pemain menyala secara natural saat pemain sedang berbicara.
+* **Mode Jarak Fleksibel**: Mendukung perubahan jarak jangkauan suara secara langsung (Whisper, Normal, Shout).
+* **Kompresi Suara Efisien**: Menggunakan Opus audio codec untuk konsumsi bandwidth rendah dan suara jernih.
+
+---
+
+## Panduan Instalasi
+
+### Untuk Pemain (Client)
+1. Unduh arsip `sampvoice-client.zip` dari [Halaman Releases](https://github.com/SakaZuki113/sampvoice/releases).
+2. Ekstrak seluruh file ke dalam folder utama instalasi **GTA San Andreas** Anda (folder tempat `gta_sa.exe` dan `samp.dll` berada):
+   * `sampvoice.asi`
+   * `bass.dll`
+   * Folder `sampvoice/` (ikon, font, dan library pendukung)
+
+### Untuk Pengembang (Server)
+1. Unduh `sampvoice-server-binaries.zip` dari [Halaman Releases](https://github.com/SakaZuki113/sampvoice/releases).
+2. Salin file plugin ke dalam folder `plugins/` pada server Anda:
+   * **Windows**: `sampvoice.dll`
+   * **Linux**: `sampvoice.so`
+3. Daftarkan `sampvoice` pada konfigurasi server:
+   * **open.mp (`config.json`)**: Masukkan `"sampvoice"` ke dalam bagian `pawn.legacy_plugins`.
+   * **SA-MP (`server.cfg`)**: Tambahkan baris `plugins sampvoice` (Windows) atau `plugins sampvoice.so` (Linux).
+   *(Catatan: Jika server menggunakan plugin `Pawn.RakNet`, letakkan `sampvoice` setelahnya).*
+4. Tempatkan file `sampvoice.inc` di dalam folder include compiler Anda (`qawno/include` atau `pawno/include`).
+
+---
+
+## Tatacara Penggunaan & Contoh Implementasi Pawn
+
+Untuk mulai menggunakan fungsionalitas plugin pada gamemode, sertakan header:
+```pawn
+#include <sampvoice>
+```
+
+### Contoh Implementasi 3D Proximity Voice Lengkap
+Berikut adalah contoh skrip gamemode yang siap pakai untuk open.mp / SA-MP dengan tombol bicara Push-To-Talk ('B') dan tombol pergantian mode jarak ('Z' untuk Whisper 4m, Normal 15m, Shout 45m):
+
+```pawn
+#include <open.mp> // atau <a_samp>
+#include <sampvoice>
+
+#define VOICE_KEY_TALK      (0x42) // Tombol 'B' (Push-To-Talk)
+#define VOICE_KEY_MODE      (0x5A) // Tombol 'Z' (Ganti Jarak)
+
+#define VOICE_DIST_WHISPER  (4.0)  // Whisper: 4 meter
+#define VOICE_DIST_NORMAL   (15.0) // Normal: 15 meter
+#define VOICE_DIST_SHOUT    (45.0) // Shout: 45 meter
+
+static SV_DLSTREAM:g_PlayerVoiceStream[MAX_PLAYERS] = {SV_NULL, ...};
+static g_PlayerVoiceMode[MAX_PLAYERS] = {1, ...}; // Default: 1 (Normal)
+
+public OnGameModeInit()
+{
+    // Inisialisasi SampVoice dengan bitrate 40 kbps
+    SvInit(40000);
+    print("[SAMPVOICE] Voice system initialized.");
+    return 1;
+}
+
+public OnGameModeExit()
+{
+    for (new i = 0; i < MAX_PLAYERS; i++)
+    {
+        if (g_PlayerVoiceStream[i] != SV_NULL)
+        {
+            SvDeleteStream(g_PlayerVoiceStream[i]);
+            g_PlayerVoiceStream[i] = SV_NULL;
+        }
+    }
+    return 1;
+}
+
+forward Voice_SetupPlayer(playerid);
+public Voice_SetupPlayer(playerid)
+{
+    if (!IsPlayerConnected(playerid) || g_PlayerVoiceStream[playerid] != SV_NULL)
+        return 0;
+
+    // Cek apakah pemain menggunakan client SampVoice
+    if (SvGetVersion(playerid) == 0)
+    {
+        SendClientMessage(playerid, 0xFF6600FF, "[VOICE] Plugin SampVoice client tidak terpasang.");
+        return 0;
+    }
+
+    // Buat 3D local stream dinamis pada posisi pemain
+    g_PlayerVoiceStream[playerid] = SvCreateDLStreamAtPlayer(VOICE_DIST_NORMAL, MAX_PLAYERS, playerid, 0x00FFBFFF, "Proximity Voice");
+    if (g_PlayerVoiceStream[playerid] != SV_NULL)
+    {
+        SvAttachSpeakerToStream(g_PlayerVoiceStream[playerid], playerid);
+    }
+
+    // Daftarkan tombol bicara PTT ('B') dan tombol ganti mode ('Z')
+    SvAddKey(playerid, VOICE_KEY_TALK, SV_TRUE);
+    SvAddKey(playerid, VOICE_KEY_MODE, SV_FALSE);
+
+    SendClientMessage(playerid, 0x00FF00FF, "[VOICE] Tahan 'B' untuk bicara. Tekan 'Z' untuk ganti jarak suara.");
+    return 1;
+}
+
+public OnPlayerSpawn(playerid)
+{
+    if (g_PlayerVoiceStream[playerid] == SV_NULL)
+    {
+        // Berikan jeda sejenak setelah spawn/connect agar handshake client selesai
+        SetTimerEx("Voice_SetupPlayer", 1000, false, "i", playerid);
+    }
+    return 1;
+}
+
+public OnPlayerDisconnect(playerid, reason)
+{
+    if (g_PlayerVoiceStream[playerid] != SV_NULL)
+    {
+        SvDeleteStream(g_PlayerVoiceStream[playerid]);
+        g_PlayerVoiceStream[playerid] = SV_NULL;
+    }
+    g_PlayerVoiceMode[playerid] = 1;
+    return 1;
+}
+
+// Callback saat tombol ditekan
+public OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
+{
+    if (keyid == VOICE_KEY_TALK)
+    {
+        SvStartRecord(playerid);
+    }
+    else if (keyid == VOICE_KEY_MODE)
+    {
+        // Pergantian jarak secara berurutan: Whisper (0) -> Normal (1) -> Shout (2)
+        g_PlayerVoiceMode[playerid] = (g_PlayerVoiceMode[playerid] + 1) % 3;
+        new Float:dist = VOICE_DIST_NORMAL;
+
+        switch (g_PlayerVoiceMode[playerid])
+        {
+            case 0:
+            {
+                dist = VOICE_DIST_WHISPER;
+                SendClientMessage(playerid, 0xFFFF00FF, "[VOICE] Mode Jarak: Whisper (4m)");
+            }
+            case 1:
+            {
+                dist = VOICE_DIST_NORMAL;
+                SendClientMessage(playerid, 0x00FF00FF, "[VOICE] Mode Jarak: Normal (15m)");
+            }
+            case 2:
+            {
+                dist = VOICE_DIST_SHOUT;
+                SendClientMessage(playerid, 0xFF0000FF, "[VOICE] Mode Jarak: Shout (45m)");
+            }
+        }
+
+        if (g_PlayerVoiceStream[playerid] != SV_NULL)
+        {
+            SvUpdateDistanceForLStream(g_PlayerVoiceStream[playerid], dist);
+        }
+    }
+    return 1;
+}
+
+// Callback saat tombol dilepas
+public OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid)
+{
+    if (keyid == VOICE_KEY_TALK)
+    {
+        SvStopRecord(playerid);
+    }
+    return 1;
+}
+```
+
+---
+
+## Kompilasi / Building
+
+Plugin dapat dikompilasi untuk target **Win32** dan **Linux x86** menggunakan CMake.
+
+### Windows (Client & Server)
 ```sh
-git clone https://github.com/AmyrAhmady/sampvoice.git
-git submodule update --init --recursive
+git clone https://github.com/SakaZuki113/sampvoice.git
 cd sampvoice
-```
-
-### Windows (Client/Server)
----------------------------------
-Run cmake against root directory. Example of how it works:
-```sh
-mkdir build
-cd build
-cmake .. -A Win32
-```
-Then open solution file (.sln) in your `build` folder.  
-
-To compile the client side of the plugin, you need the *DirectX SDK*. By default, the client part is compiled for version **SA:MP 0.3.7 (R1)**, but you can also explicitly tell the compiler the version for the build using the **SAMP_R1** and **SAMP_R3** macros.
-
-### Linux (Server)
----------------------------------
-Run cmake against root directory. Example of how it works:
-```sh
-mkdir build
-cd build
-cmake .. -DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_BUILD_TYPE=Release
+git submodule update --init --recursive
+mkdir build && cd build
+cmake .. -A Win32 -DCMAKE_BUILD_TYPE=Release -DBUILD_CLIENT=ON
 cmake --build . --config Release
 ```
+
+### Linux (Server)
+```sh
+cd docker
+chmod +x ./build.sh ./docker-entrypoint.sh
+./build.sh
+```
+Binary server (`sampvoice.so`) akan dihasilkan pada direktori `docker/build/server/`.
