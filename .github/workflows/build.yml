@@ -5,11 +5,12 @@ on:
   push:
     branches:
       - 'master'
+      - 'open.mp'
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - '*'
-      - '*/*'
-      - '**'
 
 jobs:
   build-windows-release:

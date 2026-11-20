@@ -119,4 +119,8 @@ void DynamicLocalStreamAtVehicle::Tick()
 			this->Stream::AttachListener(playerInfo.playerId);
 		}
 	}
+	else
+	{
+		this->DetachAllListeners();
+	}
 }

@@ -13,10 +13,17 @@
 DynamicStream::DynamicStream(const float distance, const uint32_t maxPlayers)
 	: LocalStream(distance), maxPlayers(maxPlayers) {}
 
-bool DynamicStream::AttachListener(uint16_t) noexcept { return false; }
-bool DynamicStream::DetachListener(uint16_t) noexcept { return false; }
+bool DynamicStream::AttachListener(uint16_t playerId) noexcept
+{
+	return this->Stream::AttachListener(playerId);
+}
+
+bool DynamicStream::DetachListener(uint16_t playerId) noexcept
+{
+	return this->Stream::DetachListener(playerId);
+}
 
 std::vector<uint16_t> DynamicStream::DetachAllListeners() noexcept
 {
-	return std::vector<uint16_t>();
+	return this->Stream::DetachAllListeners();
 }
