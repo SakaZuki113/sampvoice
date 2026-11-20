@@ -47,6 +47,8 @@ This enhanced **Multi-Version Edition** introduces comprehensive multi-version c
    * `sampvoice.asi`
    * `bass.dll`
    * `sampvoice/` folder (containing textures/icons and audio libraries)
+> [!TIP]
+> If you encounter an `Old bass.dll installed` or `BASS_IsStarted entry point not found` error on 0.3.DL / SA-MP Addon, download `bass.dll [0.3DL]` directly from the release page and replace `bass.dll` in your GTA folder.
 
 ### For Developers (Server)
 1. Download `sampvoice-server-binaries.zip` from the [Releases page](https://github.com/SakaZuki113/sampvoice/releases).
@@ -160,7 +162,8 @@ public OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
 {
     if (keyid == VOICE_KEY_TALK)
     {
-        SvStartRecord(playerid);
+        // Push-to-Talk ('B') is automatically recorded by the client
+        // Update custom HUD / textdraws here if needed
     }
     else if (keyid == VOICE_KEY_MODE)
     {
@@ -200,7 +203,8 @@ public OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid)
 {
     if (keyid == VOICE_KEY_TALK)
     {
-        SvStopRecord(playerid);
+        // Push-to-Talk ('B') released
+        // Update custom HUD / textdraws here if needed
     }
     return 1;
 }
@@ -241,6 +245,8 @@ Edisi **Multi-Version** ini menghadirkan perbaikan menyeluruh pada kompatibilita
    * `sampvoice.asi`
    * `bass.dll`
    * Folder `sampvoice/` (ikon, font, dan library pendukung)
+> [!TIP]
+> Jika Anda mengalami kendala `Old bass.dll installed` atau `Entry Point Not Found (BASS_IsStarted)` pada SA-MP 0.3.DL / SA-MP Addon, unduh file `bass.dll [0.3DL]` langsung dari halaman release dan timpa file `bass.dll` di folder GTA San Andreas Anda.
 
 ### Untuk Pengembang (Server)
 1. Unduh `sampvoice-server-binaries.zip` dari [Halaman Releases](https://github.com/SakaZuki113/sampvoice/releases).
@@ -354,7 +360,8 @@ public OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
 {
     if (keyid == VOICE_KEY_TALK)
     {
-        SvStartRecord(playerid);
+        // Tombol Push-to-Talk ('B') otomatis direkam oleh client
+        // Update status TextDraw / HUD kustom di sini jika dibutuhkan
     }
     else if (keyid == VOICE_KEY_MODE)
     {
@@ -394,7 +401,8 @@ public OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid)
 {
     if (keyid == VOICE_KEY_TALK)
     {
-        SvStopRecord(playerid);
+        // Tombol Push-to-Talk ('B') dilepas
+        // Update status TextDraw / HUD kustom di sini jika dibutuhkan
     }
     return 1;
 }

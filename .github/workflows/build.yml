@@ -92,6 +92,8 @@ jobs:
           cp -r release-files/win/* client-dist/
           rm -f client-dist/sampvoice.dll
           cd client-dist && zip -r ../sampvoice-client.zip . && cd ..
+
+          cp release-files/win/bass.dll "bass.dll [0.3DL]"
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -101,3 +103,4 @@ jobs:
             dist/sampvoice.so
             sampvoice-server-binaries.zip
             sampvoice-client.zip
+            bass.dll*
