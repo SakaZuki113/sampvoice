@@ -48,7 +48,7 @@ This enhanced **Multi-Version Edition** introduces comprehensive multi-version c
    * `bass.dll`
    * `sampvoice/` folder (containing textures/icons and audio libraries)
 > [!TIP]
-> If you encounter an `Old bass.dll installed` or `BASS_IsStarted entry point not found` error on 0.3.DL / SA-MP Addon, download `bass.dll [0.3DL]` directly from the release page and replace `bass.dll` in your GTA folder.
+> If you encounter an `Old bass.dll installed` or `BASS_IsStarted entry point not found` error across any client version (SA-MP 0.3.7 R1/R3/R5, 0.3.DL-R1, or open.mp / SA-MP Addon), use the corresponding `bass.dll` provided in the zip or on the release page (e.g. `bass.dll [0.3DL-R1]`, `bass.dll [0.3.7-R5]`, etc.) to replace `bass.dll` in your GTA San Andreas folder.
 
 ### For Developers (Server)
 1. Download `sampvoice-server-binaries.zip` from the [Releases page](https://github.com/SakaZuki113/sampvoice/releases).
@@ -246,7 +246,7 @@ Edisi **Multi-Version** ini menghadirkan perbaikan menyeluruh pada kompatibilita
    * `bass.dll`
    * Folder `sampvoice/` (ikon, font, dan library pendukung)
 > [!TIP]
-> Jika Anda mengalami kendala `Old bass.dll installed` atau `Entry Point Not Found (BASS_IsStarted)` pada SA-MP 0.3.DL / SA-MP Addon, unduh file `bass.dll [0.3DL]` langsung dari halaman release dan timpa file `bass.dll` di folder GTA San Andreas Anda.
+> Jika Anda mengalami kendala `Old bass.dll installed` atau `Entry Point Not Found (BASS_IsStarted)` pada versi client mana pun (SA-MP 0.3.7 R1/R3/R5, 0.3.DL-R1, atau open.mp / SA-MP Addon), gunakan file `bass.dll` yang sesuai yang tersedia di dalam file zip maupun halaman rilis (seperti `bass.dll [0.3DL-R1]`, `bass.dll [0.3.7-R5]`, dll.) untuk menggantikan/menimpa file `bass.dll` di folder GTA San Andreas Anda.
 
 ### Untuk Pengembang (Server)
 1. Unduh `sampvoice-server-binaries.zip` dari [Halaman Releases](https://github.com/SakaZuki113/sampvoice/releases).

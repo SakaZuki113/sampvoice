@@ -91,9 +91,18 @@ jobs:
           mkdir -p client-dist
           cp -r release-files/win/* client-dist/
           rm -f client-dist/sampvoice.dll
+          cp release-files/win/bass.dll "client-dist/bass.dll [0.3DL-R1]"
+          cp release-files/win/bass.dll "client-dist/bass.dll [0.3.7-R1]"
+          cp release-files/win/bass.dll "client-dist/bass.dll [0.3.7-R3]"
+          cp release-files/win/bass.dll "client-dist/bass.dll [0.3.7-R5]"
+          cp release-files/win/bass.dll "client-dist/bass.dll [open.mp]"
           cd client-dist && zip -r ../sampvoice-client.zip . && cd ..
 
-          cp release-files/win/bass.dll "bass.dll [0.3DL]"
+          cp release-files/win/bass.dll "bass.dll [0.3DL-R1]"
+          cp release-files/win/bass.dll "bass.dll [0.3.7-R1]"
+          cp release-files/win/bass.dll "bass.dll [0.3.7-R3]"
+          cp release-files/win/bass.dll "bass.dll [0.3.7-R5]"
+          cp release-files/win/bass.dll "bass.dll [open.mp]"
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
